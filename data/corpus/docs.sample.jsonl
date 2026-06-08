@@ -1,0 +1,3 @@
+{"doc_id":"mcp_intro","title":"MCP Tool Boundary","text":"MCP connects agents to tools and context. A retrieval tool should expose search and read operations with traceable inputs and outputs."}
+{"doc_id":"policy_export","title":"Export Data Policy","text":"Exporting data requires user authorization, a defined data scope, and explicit policy allowance. Missing evidence should trigger block or review."}
+{"doc_id":"agent_loop","title":"Agent Loop","text":"A reliable agent records plan, action, observation, reflection, and repair attempts. Traces support debugging and evaluation."}

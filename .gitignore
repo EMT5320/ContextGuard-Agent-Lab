@@ -1,0 +1,23 @@
+# Python cache and local virtual environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.*
+
+# Local run outputs
+.run/
+reports/generated/
+*.log
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

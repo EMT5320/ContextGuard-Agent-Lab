@@ -1,0 +1,8 @@
+{
+  "sensitive_actions": {
+    "export_data": ["user_authorization", "data_scope", "policy_allowance"],
+    "delete_record": ["user_authorization", "record_id", "policy_allowance", "human_review"],
+    "change_policy": ["admin_role", "policy_diff", "human_review"]
+  },
+  "default_decision": "block"
+}
