@@ -1,4 +1,4 @@
-# ContextGuard Agent Lab
+﻿# ContextGuard Agent Lab
 
 > MCP-native, evidence-governed agent evaluation workbench.
 
@@ -65,6 +65,18 @@ contextguard-agent-lab/
   tests/                        # Unit tests
 ```
 
+
+## Design review workspace
+
+The project is currently in a design-review phase before heavy implementation:
+
+- `docs/design/README.md`: design document index.
+- `docs/design/03_vision_and_positioning.md`: role positioning and portfolio fit.
+- `docs/design/04_architecture_skeleton.md`: architecture and module boundaries.
+- `docs/design/05_claim_and_eval_contract.md`: allowed claims and required evidence.
+- `docs/design/06_risk_register.md`: scope and failure-mode risks.
+- `docs/design/07_roadmap_and_gates.md`: phased gates.
+- `docs/review/00_multi_model_review_packet.md`: packet for external / multi-model review.
 ## Quick start
 
 ```powershell
@@ -81,3 +93,4 @@ python scripts/generate_report.py --run reports/sample_run.jsonl --out reports/s
 - It does not implement a full Claude Code / Codex replacement.
 - It uses toy public cases first; real company data is excluded by design.
 - A2A is reserved as a thin reviewer handoff stretch goal.
+

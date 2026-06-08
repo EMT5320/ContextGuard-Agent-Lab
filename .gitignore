@@ -21,3 +21,6 @@ build/
 Thumbs.db
 .vscode/
 .idea/
+
+# Local job-search planning docs, kept out of public commits
+docs/job/
