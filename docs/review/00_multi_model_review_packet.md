@@ -8,15 +8,21 @@ ContextGuard Agent Lab is an MCP-native, evidence-governed agent evaluation work
 
 ## 2. Candidate target roles
 
-- Agent engineer / LLM application engineer。
-- Agent algorithm / application strategy algorithm engineer。
-- Agent evaluation / AI safety / LLMOps engineer。
+Current target ladder:
+
+- Stable: Agent engineer / LLM application engineer / RAG-context engineering engineer。
+- Upward: Agent algorithm / application strategy algorithm engineer / Agent evaluation engineer。
+- Stretch: post-training or evaluation-heavy algorithm roles where AlgoCoach provides the main evidence。
+- Low priority: foundation-model pretraining or core model-training roles。
 
 ## 3. Existing portfolio context
 
-- Company work already covers multi-agent security analysis, LLM guardrails, RAG knowledge base, and production services, but cannot be fully public.
-- AlgoCoach-Flywheel covers post-training, verifier, simulator, data flywheel, and evaluation infrastructure.
-- Loomstead covers agent runtime observability, trace, counterfactual replay, and public case cards.
+See `docs/design/08_background_snapshot.md` for the stable sanitized snapshot.
+
+- Company work already covers multi-agent security analysis, LLM guardrails, RAG knowledge base, file-level analysis, security microservices, and production services, but cannot be fully public.
+- AlgoCoach-Flywheel covers post-training, verifier, simulator, data flywheel, evaluation infrastructure, and inference companion work.
+- Loomstead covers agent runtime observability, trace, counterfactual replay, audit case cards, and high-risk tool blocking.
+- ContextGuard should focus on the public gap: protocol-native agent kernel, strategy ablation, evidence-gated execution, and bounded workspace repair.
 
 ## 4. Proposed differentiator
 
@@ -75,3 +81,4 @@ Agent kernel + MCP tool boundary + evidence-gated execution + strategy evaluatio
 ## Concrete changes to docs / architecture / eval
 - ...
 ```
+

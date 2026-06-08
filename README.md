@@ -76,6 +76,7 @@ The project is currently in a design-review phase before heavy implementation:
 - `docs/design/05_claim_and_eval_contract.md`: allowed claims and required evidence.
 - `docs/design/06_risk_register.md`: scope and failure-mode risks.
 - `docs/design/07_roadmap_and_gates.md`: phased gates.
+- `docs/design/08_background_snapshot.md`: sanitized background, portfolio fit, and target-role update.
 - `docs/review/00_multi_model_review_packet.md`: packet for external / multi-model review.
 ## Quick start
 
@@ -93,4 +94,6 @@ python scripts/generate_report.py --run reports/sample_run.jsonl --out reports/s
 - It does not implement a full Claude Code / Codex replacement.
 - It uses toy public cases first; real company data is excluded by design.
 - A2A is reserved as a thin reviewer handoff stretch goal.
+
+
 

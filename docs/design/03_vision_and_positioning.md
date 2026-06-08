@@ -1,5 +1,9 @@
 ﻿# Vision and Positioning
 
+## 0. 背景快照
+
+当前脱敏背景、作品组合和目标岗位梯度见 `08_background_snapshot.md`。
+
 ## 1. 目标画像
 
 ContextGuard Agent Lab 面向三类岗位信号：
@@ -46,3 +50,5 @@ MCP-native, evidence-governed agent evaluation workbench.
 3. 是否需要引入真实开源 repo task，还是只做可控 fixture？
 4. RAG pipeline 保留多少才不会稀释 Agent 主轴？
 5. 是否值得在 W4 做 A2A reviewer handoff？
+
+

@@ -12,6 +12,7 @@
 6. `05_claim_and_eval_contract.md`：项目能承诺的 claim 与证据契约。
 7. `06_risk_register.md`：Loomstead 式中途坍缩风险、缓解动作、kill criteria。
 8. `07_roadmap_and_gates.md`：阶段门槛与实现顺序。
+9. `08_background_snapshot.md`：脱敏背景、现有作品组合、求职目标与缺口更新。
 
 ## 2. 审稿入口
 
@@ -24,3 +25,5 @@
 - 所有核心能力必须落到 metric、trace、report 或 case card。
 - 公开项目不使用公司数据和内部策略。
 - 项目主张收敛前，README 只保留 honest draft wording。
+
+
