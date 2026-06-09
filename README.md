@@ -18,7 +18,7 @@ The current MVP strategies are `react`, `plan_execute`, `verify_then_answer`, an
 | Structured tool boundary | `ToolSpec`, `ToolExecutor`, `reports/tool_manifest.json` |
 | Independent grading | `eval/graders.py`, `grader_result` in JSONL runs |
 | Cost and context accounting | `cost_proxy`, `context_chars_used`, per-call trace fields |
-| Starter strategy comparison | `reports/sample_report.md` |
+| Seed strategy comparison | `reports/sample_report.md`, `reports/agent_strategy_ablation.md` |
 
 ## 3-Minute Run
 
@@ -32,12 +32,21 @@ python scripts/export_tool_manifest.py --out reports/tool_manifest.json
 
 The default smoke run executes 3 starter cases across 4 strategies and writes 12 run records.
 
+Generate the fuller seed-suite ablation:
+
+```powershell
+python scripts/run_eval.py --strategies react,plan_execute,verify_then_answer,context_budget --out reports/agent_strategy_ablation.jsonl
+python scripts/generate_report.py --run reports/agent_strategy_ablation.jsonl --out reports/agent_strategy_ablation.md
+```
+
 ## Inspect The Results
 
 | File | What To Look For |
 |---|---|
-| `reports/sample_report.md` | Compact table of case, strategy, success, cost, context, and grader reason. |
+| `reports/sample_report.md` | Compact smoke report with aggregate metrics and run detail. |
+| `reports/agent_strategy_ablation.md` | Seed-suite by-strategy / by-family metrics, observed splits, and success-cost view. |
 | `reports/sample_run.jsonl` | Full structured run records with tool calls and independent grader output. |
+| `reports/agent_strategy_ablation.jsonl` | Full seed-suite run records across the four MVP strategies. |
 | `reports/tool_manifest.json` | MCP-compatible tool contract manifest with schemas, risk, side effect, and cost metadata. |
 | `data/benchmark/cases.sample.jsonl` | Starter `CaseSpec` examples with family, dimensions, budget, expected outcome, and grader spec. |
 
@@ -69,9 +78,10 @@ Phase 1 is in progress. Implemented so far:
 - `ToolSpec`, `ToolRegistry`, `ToolExecutor`, and manifest export.
 - `AgentStrategy` protocol and four deterministic MVP strategy skeletons.
 - Independent starter graders for retrieval QA, sensitive-action smoke cases, and unimplemented coding fixtures.
-- Multi-strategy CLI smoke workflow.
+- 9 public starter cases covering retrieval depth, verification timing, budget pressure, adversarial context, tool boundary, and a clearly marked coding stub.
+- Multi-strategy CLI smoke and seed-suite report workflow.
 
-The project is not yet a completed benchmark. The current report is a starter smoke artifact; the next milestone is adding 8-10 strategy-difference seed cases and richer by-strategy metrics.
+The project is not yet a completed benchmark. The current ablation report is seed-suite evidence; the next milestone is a stronger value-of-information budget policy and case cards for representative splits.
 
 ## Project Map
 
@@ -97,8 +107,8 @@ contextguard-agent-lab/
 
 | Milestone | Output |
 |---|---|
-| Seed case suite | 8-10 cases designed by retrieval depth, verification timing, budget pressure, adversarial context, and tool-boundary dimensions. |
-| Report upgrade | By-strategy metrics, by-family metrics, unsupported-answer rate, and budget-violation rate. |
+| Seed case suite | Initial 9-case public suite generated in `data/benchmark/cases.sample.jsonl`. |
+| Report upgrade | Initial by-strategy, by-family, unsupported-answer, and budget-violation metrics in `reports/agent_strategy_ablation.md`. |
 | Budget policy upgrade | Value-of-information heuristic and success-cost frontier. |
 | Showcase entry | A lightweight report index or static HTML entry that points to traces, manifests, reports, and case cards. |
 

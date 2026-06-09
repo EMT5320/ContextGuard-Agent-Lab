@@ -40,7 +40,7 @@ def _grade_retrieval_qa(
     grader_type: str,
     budget_violation: bool,
 ) -> GraderResult:
-    """Check whether required gold documents appeared in tool results."""
+    """Check whether required gold documents and optional verification appeared."""
 
     seen_doc_ids: set[str] = set()
     for call in record.tool_calls:
@@ -49,16 +49,40 @@ def _grade_retrieval_qa(
     expected_doc_ids = set(case.expected_outcome.gold_doc_ids)
     matched = expected_doc_ids.intersection(seen_doc_ids)
     coverage = (len(matched) / len(expected_doc_ids)) if expected_doc_ids else 1.0
-    success = coverage >= 1.0 and not budget_violation
+    verification_required = grader_type == "verification_needed" or case.family == "verification_needed"
+    verification_supported = _has_supported_verification(record)
+    missing_verification = verification_required and not verification_supported
+    success = coverage >= 1.0 and not missing_verification and not budget_violation
+    if success:
+        reason = "gold documents retrieved"
+    elif budget_violation and coverage >= 1.0 and not missing_verification:
+        reason = "budget exceeded"
+    elif missing_verification:
+        reason = "verification tool was required but not supported"
+    else:
+        reason = "missing required gold documents or budget exceeded"
     return GraderResult(
         success=success,
         grader_type=grader_type,
-        unsupported_answer=coverage < 1.0,
+        unsupported_answer=coverage < 1.0 or missing_verification,
         citation_coverage=coverage,
         budget_violation=budget_violation,
-        reason="gold documents retrieved" if success else "missing required gold documents or budget exceeded",
-        metrics={"gold_doc_coverage": coverage},
+        reason=reason,
+        metrics={
+            "gold_doc_coverage": coverage,
+            "verification_required": verification_required,
+            "verification_supported": verification_supported,
+        },
     )
+
+
+def _has_supported_verification(record: RunRecord) -> bool:
+    """Return true when a verification tool observed full support."""
+
+    for call in record.tool_calls:
+        if call.tool_name in {"verify_citation", "check_answer_support"} and call.result.get("supported"):
+            return True
+    return False
 
 
 def _grade_sensitive_action(
