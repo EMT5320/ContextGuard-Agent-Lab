@@ -2,9 +2,9 @@
 
 ## 项目定位
 
-ContextGuard Agent Lab 是一个 MCP-compatible、strategy-evaluation-first 的 Agent 评测工作台，用于展示：
+ContextGuard Agent Lab 是一个 MCP-compatible、strategy-evaluation-first 的 Agent 评测工作台。当前执行基准以 `docs/review/02_round2_synthesis.md` 和 `docs/design/10_execution_alignment_plan.md` 为准，用于展示：
 
-- Agent strategy benchmark：react / plan-execute / verify-then-answer / reflective / context-budget。
+- Agent strategy benchmark：MVP 只包含 react / plan-execute / verify-then-answer / context-budget；reflective 属于 Full target。
 - MCP-compatible tool boundary：retrieval、verification、workspace、sensitive action 工具通过统一 `ToolSpec` / registry / executor 暴露。
 - Context and budget governance：检索量、上下文长度、验证次数、工具成本和成功率一起评测。
 - Agent eval：任务成功率、工具调用效率、验证收益、修复/反思收益、安全指标、成本与延迟。
@@ -19,6 +19,8 @@ ContextGuard Agent Lab 是一个 MCP-compatible、strategy-evaluation-first 的 
 - 不声明企业级安全能力，只声明 bounded benchmark 与 engineering pattern。
 - 任何新增功能都应进入至少一个 report、trace、metric 或 case card。
 - UI 暂不进入主线，优先 CLI、JSONL trace、Markdown report。
+- 后续多 agent 并行开发时，先对齐 `10_execution_alignment_plan.md` 的工作流分工；不要把阶段目标坍缩成互不关联的小 demo。
+- `toy_code_repair`、reflective repair、LLM planner、FastMCP adapter 都不是 MVP blocker；除非已有 trace / grader / report 证据，否则不要把它们写成已实现主张。
 
 ## 默认验证
 
@@ -28,3 +30,5 @@ python -m unittest discover -s tests
 python scripts/run_eval.py --case-limit 3 --out reports/sample_run.jsonl
 python scripts/generate_report.py --run reports/sample_run.jsonl --out reports/sample_report.md
 ```
+
+默认报告是 starter smoke artifact，不是正式 strategy benchmark 证据。

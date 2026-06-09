@@ -32,7 +32,7 @@ MCP-compatible Agent Strategy Benchmark.
 
 1. 主人能设计一个策略可插拔的最小 Agent benchmark。
 2. 同一批任务下，不同 Agent 控制策略的成功率、工具成本和上下文成本可以被比较。
-3. Verification、reflection 和 context budget 不是口号，而是可度量的 tradeoff。
+3. Verification 和 context budget 不是口号，而是可度量的 tradeoff；reflection 属于 Full target，需等独立 grader 稳定后再声明。
 4. MCP-compatible tool boundary 可以作为策略评测的结构化执行边界。
 
 ## 3.1 Round2 Final Trajectory
@@ -56,10 +56,10 @@ ContextGuard 的算法信号优先来自 B：把 tool use / retrieval / verifica
 - 不做重 UI。
 - 不承诺企业级安全效果。
 
-## 5. 设计审稿期开放问题
+## 5. 已收束决策与剩余问题
 
-1. 当前主轴是否足够支撑 Agent 算法 / 应用策略岗位？
-2. `context_budget_agent` 应做到多复杂，才算有策略信号且不陷入 scope trap？
-3. MCP adapter 应在 Full target 中早于 LLM-backed planner 还是反过来？
-4. coding fixture 是否仍值得作为 stretch，还是完全交给 Loomstead 的 secondary coding evidence？
-5. Phase 4 是否接入 cheap LLM-backed planner，取决于 eval validity 还是面试展示需要？
+1. 已收束：MVP 足够支撑 Agent eval / Context Engineering / 应用策略信号；Agent 算法信号主要来自 cost-aware control policy 与 success-cost frontier。
+2. 已收束：`context_budget_agent` MVP 使用简单 VoI heuristic，不引入学习策略；LLM-backed planner 不作为 MVP gate。
+3. 已收束：FastMCP adapter 进入 Full target；MVP 只需要 `ToolSpec` manifest 作为 MCP-compatible artifact。
+4. 已收束：coding fixture 是 stretch，只在强化 strategy ablation 时加入。
+5. 剩余外部依赖：是否与 AlgoCoach 形成训练-评测组合拳，取决于求职时间线和 AlgoCoach P0 进度。

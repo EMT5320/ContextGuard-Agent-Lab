@@ -7,12 +7,14 @@ MVP 追求 20-30 条高质量 case，Full target 再扩到 60-80 条。数量不
 | Family | MVP Count | Full Count | Purpose |
 |---|---:|---:|---|
 | Retrieval QA | 6-8 | 15-20 | 检索、引用、answer support。 |
-| Adversarial Context | 5-6 | 10-15 | prompt injection / poisoned snippet / distractor doc。 |
-| Verification Needed | 5-6 | 10-15 | 验证前回答容易 unsupported，验证后可修正。 |
-| Budget Pressure | 5-6 | 10-15 | context_budget 与 plan_execute 的 success-cost tradeoff。 |
-| Tool Selection | 3-5 | 8-10 | 同一任务下不同工具选择成本不同。 |
-| Sensitive Action | 2-3 | 5-8 | 小规模 allow / block / review 平衡集。 |
-| Coding Fixture | 0-2 | 5-8 | stretch，仅做 bounded repair / test cases。 |
+| Adversarial Context | 4-5 | 10-15 | prompt injection / poisoned snippet / distractor doc。 |
+| Verification Needed | 4-5 | 10-15 | 验证前回答容易 unsupported，验证后可修正。 |
+| Budget Pressure | 4-5 | 10-15 | context_budget 与 plan_execute 的 success-cost tradeoff。 |
+| Tool Selection | 3-4 | 8-10 | 同一任务下不同工具选择成本不同。 |
+| Sensitive Action | 0-2 smoke only | 5-8 | 小规模 allow / block / review 平衡集；不计入 MVP 主线数量。 |
+| Coding Fixture | 0 | 3-5 | stretch，仅做 bounded repair / test cases。 |
+
+MVP 核心 case 总量以 20-30 条为上限。Sensitive action 在 MVP 只保留 1-2 条 tool-boundary smoke / adversarial case；coding fixture 不进入 MVP quickstart。
 
 ## 1.1 Case Design Dimensions
 

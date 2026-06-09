@@ -7,7 +7,8 @@ Benchmark Layer
   CaseSpec / Corpus / BudgetSpec / ExpectedOutcome / GraderSpec
 
 Agent Strategy Layer
-  react_agent / plan_execute_agent / verify_then_answer_agent / reflective_agent / context_budget_agent
+  MVP: react_agent / plan_execute_agent / verify_then_answer_agent / context_budget_agent
+  Full target: reflective_agent / optional llm_planner_agent / guarded_agent for sensitive family
 
 Kernel and Execution Layer
   AgentState / AgentKernel / ToolAction / Observation / ToolExecutor / Grader

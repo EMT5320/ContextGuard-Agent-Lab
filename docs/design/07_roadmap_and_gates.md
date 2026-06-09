@@ -1,5 +1,7 @@
 # Roadmap and Gates
 
+This roadmap is an execution contract, not a list of independent demos. A phase is not done until its artifacts flow into trace, metric, report, or case-card evidence and preserve the same-case / multi-strategy benchmark loop.
+
 ## Phase 0: Pivot Review Gate
 
 Goal: lock the revised project vision before heavy implementation.
@@ -15,11 +17,13 @@ Deliverables:
 Gate:
 
 ```text
-[ ] At least one new review collected against the revised strategy-benchmark scope.
-[ ] Project positioning decided: MCP-compatible Agent Strategy Benchmark.
-[ ] Must-have / should-have / stretch / cut list confirmed.
-[ ] README wording aligned with allowed claims.
+[x] At least one new review collected against the revised strategy-benchmark scope.
+[x] Project positioning decided: MCP-compatible Agent Strategy Benchmark.
+[x] Must-have / should-have / stretch / cut list confirmed.
+[x] README wording aligned with allowed claims.
 ```
+
+Decision source: `docs/review/02_round2_synthesis.md`.
 
 ## Phase 0.5: Pre-sprint Alignment
 
@@ -32,13 +36,15 @@ Deliverables:
 - `toy_code_repair` stub removed from default quickstart or marked `stub_not_claimed` / unsuccessful。
 - MVP strategy set consistently documented as `react`, `plan_execute`, `verify_then_answer`, `context_budget`。
 - simple `cost_proxy` formula documented。
+- multi-agent execution plan added as `docs/design/10_execution_alignment_plan.md`。
 
 Gate:
 
 ```text
-[ ] No public default artifact shows repair stub success
-[ ] Package metadata matches README positioning
-[ ] Quickstart output is labeled smoke / starter, not final benchmark evidence
+[x] No public default artifact shows repair stub success
+[x] Package metadata matches README positioning
+[x] Quickstart output is labeled smoke / starter, not final benchmark evidence
+[x] Future-agent instructions point to the execution alignment plan
 ```
 
 ## Phase 1: Contracts and Strategy Skeleton
@@ -54,6 +60,13 @@ Deliverables:
 - independent grader skeleton。
 - multi-strategy CLI。
 - 8-10 seed cases across retrieval QA, verification-needed, budget pressure。
+
+Parallel lanes:
+
+- Benchmark contracts agent: `BudgetSpec`, `ExpectedOutcome`, `GraderSpec`, loader validation。
+- Tool boundary agent: `ToolSpec`, `ToolExecutor`, manifest export, retrieval tool wrapping。
+- Strategy agent: `AgentStrategy` protocol and first three deterministic strategy classes。
+- Eval agent: independent grader skeleton and RunRecord grader fields。
 
 Gate:
 
@@ -76,6 +89,12 @@ Deliverables:
 - adversarial context cases with negative controls。
 - cases authored by strategy-difference dimensions。
 - failure taxonomy starter。
+
+Parallel lanes:
+
+- Case authoring agent: dimension-led cases and negative controls。
+- Tool agent: verification tool payloads and structured errors。
+- Eval/report agent: by-family metrics and unsupported-answer metrics。
 
 Gate:
 
@@ -101,6 +120,12 @@ Deliverables:
 - Pareto / dominated strategy analysis。
 - top 3 case cards。
 
+Parallel lanes:
+
+- Strategy agent: VoI-based `context_budget_agent`。
+- Eval agent: cost proxy, success-conditioned cost, Pareto / dominated analysis。
+- Report agent: ablation report and context budget frontier。
+
 Gate:
 
 ```text
@@ -121,6 +146,8 @@ Deliverables:
 - final README evidence table。
 - architecture diagram。
 - resume bullets。
+
+FastMCP remains optional until the in-process `ToolSpec` / `ToolExecutor` boundary is stable. If it is not implemented, README must keep `MCP-compatible` wording and avoid `MCP-native` claims。
 
 Gate:
 

@@ -37,7 +37,7 @@ AgentStrategy + MCP-compatible tools + verification + context budget + strategy 
 ## 5. Planned Modules
 
 - Benchmark: CaseSpec, BudgetSpec, ExpectedOutcome, GraderSpec。
-- Agent strategies: react, plan-execute, verify-then-answer, reflective, context-budget。
+- Agent strategies: MVP uses react, plan-execute, verify-then-answer, context-budget. Reflective and LLM-backed planner are Full target / stretch。
 - Tools: retrieval, verification, budget metadata, small sensitive-action set, optional MCP adapters。
 - Eval: independent grader, strategy leaderboard, success-cost frontier, failure taxonomy。
 - Reports: ablation report, context budget frontier, adversarial context eval, case cards。

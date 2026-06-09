@@ -14,7 +14,8 @@
 8. `07_roadmap_and_gates.md`：阶段门槛与实现顺序。
 9. `08_background_snapshot.md`：脱敏背景、作品组合和目标岗位梯度。
 10. `09_loomstead_overlap_and_pivot.md`：Loomstead 重合审计与 pivot 决策。
-11. `../review/02_round2_synthesis.md`：round2 多模型审稿吸收矩阵与最终执行顺序。
+11. `10_execution_alignment_plan.md`：面向多 agent 并行开发的执行计划、阶段边界和防漂移约束。
+12. `../review/02_round2_synthesis.md`：round2 多模型审稿吸收矩阵与最终执行顺序。
 
 ## Review Inputs
 
@@ -26,7 +27,7 @@
 ## Current Spine
 
 ```text
-AgentStrategy + ToolSpec/ToolExecutor + MCP-compatible boundary + context budget + strategy ablation + Markdown reports
+AgentStrategy + ToolSpec/ToolExecutor + MCP-compatible boundary + cost-aware context budget + strategy ablation + Markdown reports
 ```
 
 RAG、adversarial context、sensitive action 和 coding fixture 都是任务环境，不是项目本体。

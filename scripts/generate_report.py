@@ -23,7 +23,9 @@ def main() -> None:
     records = read_run_records(REPO_ROOT / args.run)
     success_count = sum(1 for record in records if record.get("success"))
     lines = [
-        "# Sample Agent Evaluation Report",
+        "# Starter Smoke Report",
+        "",
+        "> This starter artifact checks repository wiring only. It is not final strategy benchmark evidence.",
         "",
         f"- Cases: {len(records)}",
         f"- Success: {success_count}",

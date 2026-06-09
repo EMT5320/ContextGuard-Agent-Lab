@@ -36,7 +36,7 @@ Agent strategy eval + MCP-compatible tools + context budget + verification + abl
 
 项目要回答的问题：
 
-1. 同一批任务下，`react`、`plan_execute`、`verify_then_answer`、`reflective`、`context_budget` 策略有什么行为差异？
+1. 同一批任务下，MVP 四个策略 `react`、`plan_execute`、`verify_then_answer`、`context_budget` 有什么行为差异？
 2. 哪些策略更成功，哪些策略更省工具调用 / 上下文 / 验证成本？
 3. 在 adversarial context 和 unsupported-answer 风险下，验证策略是否值得额外成本？
 4. MCP-compatible tool boundary 如何让策略评测保持结构化、可复现、可扩展？

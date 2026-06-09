@@ -40,11 +40,11 @@ Should-have:
 - Context budget frontier。
 - Adversarial context family。
 - Verify-then-answer comparison。
-- Minimal FastMCP adapter。
-- Optional LLM-backed planner after deterministic report is stable。
+- Tool manifest export with MCP-compatible schema metadata。
 
 Stretch:
 
+- Minimal FastMCP adapter。
 - Reflective repair beyond retry。
 - Small coding fixture family。
 - Hosted LLM planner。

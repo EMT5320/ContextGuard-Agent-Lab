@@ -2,7 +2,7 @@
 
 > MCP-compatible agent strategy benchmark for governed tool use, retrieval, verification, and context budget tradeoffs.
 
-ContextGuard Agent Lab is a small reproducible portfolio project for comparing agent control strategies under the same benchmark cases. It focuses on `AgentStrategy` design, MCP-compatible tool boundaries, context engineering, verification-before-answer, reflection, and success-cost tradeoffs.
+ContextGuard Agent Lab is a small reproducible portfolio project for comparing agent control strategies under the same benchmark cases. It focuses on `AgentStrategy` design, MCP-compatible tool boundaries, context engineering, verification-before-answer, context-budget policy, and success-cost tradeoffs. Reflection is a full-target extension after the deterministic benchmark is stable.
 
 中文定位：这是一个面向 Agent 算法 / 应用策略算法 / Agent eval / Context Engineering 岗位的公开展示项目。它不再主打 generic observability 或 audit harness，而是用统一 `CaseSpec` 比较不同 Agent 策略在检索、工具选择、验证、反思和上下文预算上的行为差异。
 
@@ -28,7 +28,7 @@ Agent tool use is a control policy. It should be evaluated under shared tasks, s
 
 ## Current Status
 
-The repository is in a design-review phase before the next implementation sprint. The existing code is a deterministic starter skeleton; it should not yet be presented as a completed strategy benchmark.
+The repository is in pre-sprint alignment after Round 2 design review. The existing code is a deterministic starter skeleton; it should not yet be presented as a completed strategy benchmark.
 
 ## Initial Scope
 
@@ -87,9 +87,13 @@ contextguard-agent-lab/
 - `docs/design/05_claim_and_eval_contract.md`: allowed claims and required evidence。
 - `docs/design/07_roadmap_and_gates.md`: phased gates。
 - `docs/design/09_loomstead_overlap_and_pivot.md`: overlap audit and pivot rationale。
+- `docs/design/10_execution_alignment_plan.md`: execution plan for multi-agent implementation。
 - `docs/review/00_multi_model_review_packet.md`: packet for the next external / multi-model review。
+- `docs/review/02_round2_synthesis.md`: accepted Round 2 execution baseline。
 
-## Quick Start
+## Starter Smoke Workflow
+
+This workflow checks the starter skeleton and produces a smoke report. It is not final benchmark evidence yet.
 
 ```powershell
 python -m compileall -q src scripts tests
@@ -106,3 +110,4 @@ python scripts/generate_report.py --run reports/sample_run.jsonl --out reports/s
 - It does not replace Loomstead's observability / audit story。
 - It uses toy public cases first; company data is excluded by design。
 - `MCP-compatible` means tool contracts first; FastMCP adapter becomes claimable only after it is implemented and demonstrated。
+- Public starter reports must not present `toy_code_repair` as an implemented success path before a real patch / test loop exists。

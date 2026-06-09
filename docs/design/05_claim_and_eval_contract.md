@@ -13,6 +13,8 @@
 | Reflection can recover some failures in bounded cases. | Reflective strategy retry trace, recovery cases, `reflection_recovery_rate`。 |
 | Sensitive-action handling is demonstrated only as a small bounded task family. | PolicyDecision trace, allow/block/review cases, unsafe allow / false block metrics。 |
 
+MVP public claims are limited to strategy benchmark, MCP-compatible in-process tool boundary, context budget tradeoffs, cost-aware control policy, and verification tradeoffs. Reflection, sensitive-action handling, FastMCP exposure, coding repair, and LLM-backed planning are claimable only after their traces, graders, metrics, and reports exist.
+
 ## 2. Disallowed Claims
 
 - Production-grade enterprise security。

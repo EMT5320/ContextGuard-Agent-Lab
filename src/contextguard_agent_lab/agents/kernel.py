@@ -63,13 +63,13 @@ class AgentKernel:
         if case.case_type == "toy_code_repair":
             # The starter skeleton records the intended repair loop
             # without mutating a real workspace yet.
-            answer = "repair_plan: inspect failure -> patch add(a, b) -> run tests"
+            answer = "stub_not_claimed: repair loop is not implemented in the starter skeleton"
             return RunRecord(
                 case_id=case.case_id,
                 strategy=strategy,
                 answer=answer,
-                success=True,
-                metrics={"repair_loop_stub": True},
+                success=False,
+                metrics={"repair_loop_stub": True, "status": "stub_not_claimed"},
             )
 
         return RunRecord(case_id=case.case_id, strategy=strategy, answer="unsupported case type", success=False)

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "contextguard-agent-lab"
 version = "0.1.0"
-description = "MCP-native, evidence-governed agent evaluation workbench."
+description = "MCP-compatible agent strategy benchmark for tool-use, verification, and context-budget tradeoffs."
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{ name = "ContextGuard Agent Lab" }]
