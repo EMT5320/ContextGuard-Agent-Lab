@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from contextguard_agent_lab.agents.kernel import AgentKernel
 from contextguard_agent_lab.benchmark.schema import CaseSpec
 from contextguard_agent_lab.guardrails.policy import EvidencePolicyEngine
-from contextguard_agent_lab.tools.registry import ToolRegistry
+from contextguard_agent_lab.tools.registry import ToolExecutor, ToolRegistry
 
 
 class AgentKernelTest(unittest.TestCase):
@@ -20,7 +20,7 @@ class AgentKernelTest(unittest.TestCase):
 
         tools = ToolRegistry()
         policy = EvidencePolicyEngine({"export_data": ["user_authorization", "data_scope"]})
-        kernel = AgentKernel(tools=tools, policy_engine=policy)
+        kernel = AgentKernel(tools=ToolExecutor(tools), policy_engine=policy)
         case = CaseSpec(
             case_id="case-sensitive",
             case_type="sensitive_action",
@@ -31,9 +31,9 @@ class AgentKernelTest(unittest.TestCase):
         )
         record = kernel.run(case)
         self.assertTrue(record.success)
+        self.assertIsNotNone(record.grader_result)
         self.assertEqual(record.policy_decisions[0].decision, "block")
 
 
 if __name__ == "__main__":
     unittest.main()
-

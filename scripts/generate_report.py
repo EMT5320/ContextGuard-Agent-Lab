@@ -30,12 +30,24 @@ def main() -> None:
         f"- Cases: {len(records)}",
         f"- Success: {success_count}",
         "",
-        "| case_id | strategy | success | answer |",
-        "|---|---|---:|---|",
+        "| case_id | family | strategy | success | cost_proxy | context_chars | grader_reason | answer |",
+        "|---|---|---|---:|---:|---:|---|---|",
     ]
     for record in records:
         answer = str(record.get("answer", "")).replace("|", "/")
-        lines.append(f"| {record.get('case_id')} | {record.get('strategy')} | {record.get('success')} | {answer} |")
+        grader_result = record.get("grader_result") or {}
+        grader_reason = str(grader_result.get("reason", "")).replace("|", "/")
+        lines.append(
+            "| "
+            f"{record.get('case_id')} | "
+            f"{record.get('family', '')} | "
+            f"{record.get('strategy')} | "
+            f"{record.get('success')} | "
+            f"{record.get('cost_proxy', 0)} | "
+            f"{record.get('context_chars_used', 0)} | "
+            f"{grader_reason} | "
+            f"{answer} |"
+        )
     target = REPO_ROOT / args.out
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text("\n".join(lines) + "\n", encoding="utf-8")
