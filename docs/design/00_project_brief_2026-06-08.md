@@ -41,13 +41,24 @@ Agent strategy eval + MCP-compatible tools + context budget + verification + abl
 3. 在 adversarial context 和 unsupported-answer 风险下，验证策略是否值得额外成本？
 4. MCP-compatible tool boundary 如何让策略评测保持结构化、可复现、可扩展？
 
+## 3.1 Round2 收束决策
+
+Round2 三份模型 review 均认可新版 pivot。最终吸收结论：
+
+- MVP 走 `Agent Strategy Benchmark`，先保证 deterministic benchmark spine 可复现。
+- 核心升级目标是 `Cost-Aware Agent Control Policy`，让 `context_budget_agent` 从节流开关升级为 value-of-information budget policy。
+- `MCP-Governed Agent Evaluation` 作为长期愿景，只保留 2-3 个 tool-boundary adversarial cases，不恢复旧版 safety / audit 主轴。
+- `reflective_agent`、LLM-backed planner、coding fixture 进入 Full target / stretch，不挤压 MVP。
+
 ## 4. 一个月 Portfolio MVP 成功定义
 
 ```text
 [ ] 4 个真实可区分策略：react / plan_execute / verify_then_answer / context_budget。
 [ ] ToolSpec + ToolRegistry + ToolExecutor，所有工具调用结构化可追踪。
-[ ] 20-30 条高质量 case，覆盖 retrieval QA、adversarial context、verification-needed、budget pressure。
+[ ] Tool manifest export，作为 MCP-compatible boundary 的最小公开证据。
+[ ] 20-30 条高质量 case，按策略差异维度设计，而不是按任务类型凑数。
 [ ] strategy ablation report 展示 success / tool calls / context chars / cost_proxy / unsupported_answer_rate。
+[ ] context_budget_agent 使用简单 value-of-information 启发式，并展示 success-cost frontier。
 [ ] 至少 3 个 bad case 进入 failure taxonomy。
 [ ] README 首页能从 claim 跳到 leaderboard、report 和代表性 case card。
 ```

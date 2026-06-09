@@ -21,6 +21,26 @@ Gate:
 [ ] README wording aligned with allowed claims.
 ```
 
+## Phase 0.5: Pre-sprint Alignment
+
+Goal: align code metadata and public starter artifacts with the revised scope before deeper implementation.
+
+Deliverables:
+
+- `pyproject.toml` description updated away from old `MCP-native / evidence-governed` wording。
+- default report renamed or regenerated as starter smoke report。
+- `toy_code_repair` stub removed from default quickstart or marked `stub_not_claimed` / unsuccessful。
+- MVP strategy set consistently documented as `react`, `plan_execute`, `verify_then_answer`, `context_budget`。
+- simple `cost_proxy` formula documented。
+
+Gate:
+
+```text
+[ ] No public default artifact shows repair stub success
+[ ] Package metadata matches README positioning
+[ ] Quickstart output is labeled smoke / starter, not final benchmark evidence
+```
+
 ## Phase 1: Contracts and Strategy Skeleton
 
 Goal: turn the starter code from case router into strategy benchmark skeleton.
@@ -28,7 +48,9 @@ Goal: turn the starter code from case router into strategy benchmark skeleton.
 Deliverables:
 
 - `AgentStrategy` interface。
+- `BudgetSpec`, `ExpectedOutcome`, `GraderSpec`。
 - `ToolSpec`, `ToolRegistry`, `ToolExecutor`。
+- `export_tool_manifest()`。
 - independent grader skeleton。
 - multi-strategy CLI。
 - 8-10 seed cases across retrieval QA, verification-needed, budget pressure。
@@ -40,6 +62,7 @@ Gate:
 [ ] Same case runs across at least 3 strategies
 [ ] Tool sequences differ across strategies
 [ ] Grader is not embedded in AgentKernel branch logic
+[ ] Tool manifest exposes name / schema / risk / cost / mcp exposure metadata
 ```
 
 ## Phase 2: Retrieval, Verification, and Failure Cases
@@ -51,6 +74,7 @@ Deliverables:
 - retrieval tools: `search_docs`, `read_doc`, `verify_citation`。
 - verification tools: `check_answer_support`, `grade_final`。
 - adversarial context cases with negative controls。
+- cases authored by strategy-difference dimensions。
 - failure taxonomy starter。
 
 Gate:
@@ -59,6 +83,7 @@ Gate:
 [ ] At least 20 cases total
 [ ] 20-30% cases fail under at least one strategy
 [ ] unsupported_answer_rate differs between react and verify_then_answer
+[ ] at least 5 cases declare their intended strategy-difference dimension
 [ ] sample report includes by-family metrics
 ```
 
@@ -69,9 +94,11 @@ Goal: make cost-aware strategy tradeoffs visible.
 Deliverables:
 
 - `context_budget_agent`。
+- value-of-information budget heuristic。
 - budget specs per case。
 - strategy leaderboard。
 - context budget frontier report。
+- Pareto / dominated strategy analysis。
 - top 3 case cards。
 
 Gate:
@@ -80,6 +107,7 @@ Gate:
 [ ] At least 4 strategies compared
 [ ] report shows success / tool calls / context chars / cost proxy
 [ ] budget strategy has lower cost on some cases and documented failure modes
+[ ] report explains why context budget policy works or fails
 [ ] at least 3 bad cases explained
 ```
 
@@ -113,6 +141,7 @@ Candidate deliverables:
 - 3-5 bounded coding fixture cases。
 - reflective repair loop with real test rerun。
 - hosted LLM planner comparison。
+- MCP tool-boundary adversarial cases beyond MVP smoke。
 
 Gate:
 

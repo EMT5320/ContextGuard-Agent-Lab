@@ -8,6 +8,7 @@
 | Agent strategies can be compared under unified tasks. | Strategy leaderboard, per-family metrics, non-trivial success / cost differences。 |
 | Tool use is exposed through an MCP-compatible boundary. | `ToolSpec`, `ToolRegistry`, `ToolExecutor`, structured tool traces; FastMCP adapter only if implemented。 |
 | Context budget tradeoffs are measurable. | `context_chars_used`, `cost_proxy`, budget pressure cases, budget frontier report。 |
+| A cost-aware control policy is demonstrated in bounded cases. | `context_budget_agent` value-of-information heuristic, success-cost frontier, dominated strategy analysis。 |
 | Verification can reduce unsupported answers in bounded cases. | Verification-needed cases, `unsupported_answer_rate`, citation coverage, before/after strategy comparison。 |
 | Reflection can recover some failures in bounded cases. | Reflective strategy retry trace, recovery cases, `reflection_recovery_rate`。 |
 | Sensitive-action handling is demonstrated only as a small bounded task family. | PolicyDecision trace, allow/block/review cases, unsafe allow / false block metrics。 |
@@ -20,6 +21,8 @@
 - Human productivity improvement without real study evidence。
 - Loomstead-style observability platform replacement。
 - MCP-native runtime before an actual MCP adapter is implemented and demonstrated。
+- LLM-backed strategy improvement before hosted/local planner experiments are implemented and measured。
+- Algorithmic superiority beyond bounded cases and explicit baselines。
 
 ## 3. Minimum Metric Contract
 
@@ -34,6 +37,8 @@
 | `unsupported_answer_rate` | Final answers not supported by retrieved evidence。 |
 | `verification_call_rate` | Fraction of cases where verification tools are invoked。 |
 | `reflection_recovery_rate` | Failed first attempts recovered by reflection。 |
+| `success_conditioned_cost` | Average cost proxy among successful runs。 |
+| `pareto_dominated_case_count` | Cases where a strategy is dominated by another strategy on success and cost。 |
 | `unsafe_allow_rate` | Sensitive action allowed while required evidence is missing。 |
 | `false_block_rate` | Benign or fully evidenced sensitive action blocked。 |
 
@@ -58,3 +63,4 @@ Before implementation sprint, at least one external/model review should challeng
 3. Whether eval validity supports the claims。
 4. Whether MCP-compatible is meaningful before FastMCP。
 5. Whether the MVP fits one month without starving AlgoCoach。
+6. Whether `context_budget_agent` is a real control policy rather than a throttling branch。

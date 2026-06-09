@@ -32,18 +32,23 @@ The repository is in a design-review phase before the next implementation sprint
 
 ## Initial Scope
 
-### Agent Strategies
+### MVP Agent Strategies
 
 - `react_agent`: direct observe-act baseline with minimal planning。
 - `plan_execute_agent`: explicit plan, multi-step retrieval, then execution。
 - `verify_then_answer_agent`: answer only after citation / consistency verification。
-- `reflective_agent`: retry once after failed grader or tool observation。
 - `context_budget_agent`: choose retrieval/tool calls under context and cost budgets。
+
+### Full-target Strategies
+
+- `reflective_agent`: retry once after failed grader or tool observation。
+- `llm_planner_agent`: optional cheap hosted/local model planner comparison after deterministic benchmark is stable。
 - `guarded_agent`: kept as a small sensitive-action environment strategy, not the main project spine。
 
 ### Tool Layer
 
 - Tool contract: `ToolSpec`, `ToolRegistry`, `ToolExecutor`。
+- Tool manifest: `export_tool_manifest()` as the first MCP-compatible artifact。
 - Retrieval tools: `search_docs`, `read_doc`, `verify_citation`。
 - Verification tools: `check_answer_support`, `detect_injection`, `grade_final`。
 - Budget tools / metadata: estimated context chars, tool cost, latency proxy。

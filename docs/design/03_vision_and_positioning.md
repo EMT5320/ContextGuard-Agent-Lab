@@ -35,6 +35,18 @@ MCP-compatible Agent Strategy Benchmark.
 3. Verification、reflection 和 context budget 不是口号，而是可度量的 tradeoff。
 4. MCP-compatible tool boundary 可以作为策略评测的结构化执行边界。
 
+## 3.1 Round2 Final Trajectory
+
+Round2 讨论后，项目愿景按三层推进：
+
+| Layer | Vision | Scope Decision |
+|---|---|---|
+| A | Agent Strategy Benchmark | MVP：deterministic strategies + independent grader + ablation report。 |
+| B | Cost-Aware Agent Control Policy | Core upgrade：VoI-based `context_budget_agent` + success-cost frontier。 |
+| C | MCP-Governed Agent Evaluation | Long-term：small MCP boundary attack cases, optional identity / structured error / LLM planner work。 |
+
+ContextGuard 的算法信号优先来自 B：把 tool use / retrieval / verification 看成预算约束下的控制策略，而不是只比较 if-else 分支。
+
 ## 4. 非目标
 
 - 不做完整 RAG 产品平台。
@@ -48,6 +60,6 @@ MCP-compatible Agent Strategy Benchmark.
 
 1. 当前主轴是否足够支撑 Agent 算法 / 应用策略岗位？
 2. `context_budget_agent` 应做到多复杂，才算有策略信号且不陷入 scope trap？
-3. MCP adapter 应在 MVP 还是 Full target 进入？
+3. MCP adapter 应在 Full target 中早于 LLM-backed planner 还是反过来？
 4. coding fixture 是否仍值得作为 stretch，还是完全交给 Loomstead 的 secondary coding evidence？
-5. 20-30 条 MVP cases 如何设计，才能让 strategy ablation 非平凡？
+5. Phase 4 是否接入 cheap LLM-backed planner，取决于 eval validity 还是面试展示需要？

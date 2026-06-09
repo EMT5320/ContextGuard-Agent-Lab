@@ -40,19 +40,33 @@ class AgentStrategy(Protocol):
 
 策略必须改变控制流、工具序列、验证时机或预算行为。只改变 plan 文本不算真实策略差异。
 
-## 4. Starter Strategies
+## 4. MVP Strategies
 
 | Strategy | Purpose | Expected Difference |
 |---|---|---|
 | `react_agent` | 最小直接行动 baseline | 工具少，失败率较高，容易 unsupported answer。 |
 | `plan_execute_agent` | 先分解再执行 | 工具调用更多，multi-hop retrieval 更稳。 |
 | `verify_then_answer_agent` | 先验证 citation / support 再回答 | unsupported answer 更少，成本更高。 |
-| `reflective_agent` | 失败后一次 retry | repair / recovery 更强，latency 与工具调用更高。 |
-| `context_budget_agent` | 在预算内选择 retrieval / verification | cost_proxy 更低，可能牺牲成功率。 |
+| `context_budget_agent` | 基于预算选择 retrieval / read / verification | cost_proxy 更低，可能牺牲成功率。 |
+
+`context_budget_agent` 不应只是少调用工具。MVP 应使用简单 value-of-information heuristic：
+
+```text
+chunk_value = query_relevance * source_reliability * novelty
+chunk_cost = estimated_context_chars + tool_cost
+selection_score = chunk_value / max(chunk_cost, 1)
+```
+
+## 5. Full-target Strategies
+
+| Strategy | Purpose | Entry Condition |
+|---|---|---|
+| `reflective_agent` | 失败后一次 retry / repair | independent grader 已稳定，且已有失败可恢复 cases。 |
+| `llm_planner_agent` | cheap hosted/local model planner comparison | deterministic benchmark 已能产生稳定 ablation report。 |
 
 `guarded_agent` 保留为 sensitive action 小环境的策略，不再作为主线策略。
 
-## 5. Safety and Policy Boundary
+## 6. Safety and Policy Boundary
 
 Sensitive action 仍使用 bounded evidence contract，但它只是一个 case family：
 

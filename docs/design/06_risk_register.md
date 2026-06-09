@@ -12,6 +12,8 @@
 | R6 | Coding-agent slice becomes too large | Trying to clone Codex / Claude Code | Keep coding fixture optional and bounded | Coding work blocks strategy benchmark milestones |
 | R7 | Public claim overreaches | README promises enterprise security or full MCP-native runtime | Maintain claim contract and honest boundaries | Claims cannot map to artifacts |
 | R8 | Time competes with AlgoCoach | Too much implementation before review | Freeze design first, implement gates later | AlgoCoach P0 evidence work starves |
+| R9 | Algorithm signal stays too weak | Strategies look like if-else engineering rather than control policies | Upgrade context budget to VoI policy and report Pareto frontier | No success-cost frontier or policy explanation by Phase 3 |
+| R10 | LLM-backed strategy enters too early | Non-determinism obscures benchmark validity | Keep deterministic MVP; add LLM planner only after grader/report are stable | LLM integration blocks P1/P2 gates |
 
 ## 2. Lessons Imported From Prior Project Work
 
@@ -31,6 +33,7 @@ Must-have:
 - 4 strategies with real behavior differences。
 - 20-30 high-quality cases。
 - Strategy ablation report。
+- VoI-based context budget policy。
 
 Should-have:
 
@@ -38,6 +41,7 @@ Should-have:
 - Adversarial context family。
 - Verify-then-answer comparison。
 - Minimal FastMCP adapter。
+- Optional LLM-backed planner after deterministic report is stable。
 
 Stretch:
 
