@@ -2,12 +2,14 @@
 
 ## 项目定位
 
-ContextGuard Agent Lab 是一个 MCP-native、evidence-governed 的 Agent 评测工作台，用于展示：
+ContextGuard Agent Lab 是一个 MCP-compatible、strategy-evaluation-first 的 Agent 评测工作台，用于展示：
 
-- Agent kernel：plan / act / observe / reflect / repair。
-- MCP tool boundary：retrieval、workspace、sensitive action 工具通过统一 registry 暴露。
-- Evidence-gated tool execution：高风险动作必须满足 evidence contract。
-- Agent eval：任务成功率、工具调用效率、修复成功率、安全指标、成本与延迟。
+- Agent strategy benchmark：react / plan-execute / verify-then-answer / reflective / context-budget。
+- MCP-compatible tool boundary：retrieval、verification、workspace、sensitive action 工具通过统一 `ToolSpec` / registry / executor 暴露。
+- Context and budget governance：检索量、上下文长度、验证次数、工具成本和成功率一起评测。
+- Agent eval：任务成功率、工具调用效率、验证收益、修复/反思收益、安全指标、成本与延迟。
+
+项目不再以 generic observability、audit harness 或 evidence-gated execution 作为主轴；这些能力已主要由 Loomstead 负责展示。ContextGuard 的主轴是策略差异、协议边界和 success-cost tradeoff。
 
 ## 协作原则
 

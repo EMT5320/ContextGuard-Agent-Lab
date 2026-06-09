@@ -1,58 +1,67 @@
-﻿# ContextGuard Agent Lab
+# ContextGuard Agent Lab
 
-> MCP-native, evidence-governed agent evaluation workbench.
+> MCP-compatible agent strategy benchmark for governed tool use, retrieval, verification, and context budget tradeoffs.
 
-ContextGuard Agent Lab is a small but complete portfolio project for evaluating agent systems under unified cases. It focuses on agent kernel design, MCP-style tool boundaries, evidence-gated tool execution, traceability, and reproducible evaluation.
+ContextGuard Agent Lab is a small reproducible portfolio project for comparing agent control strategies under the same benchmark cases. It focuses on `AgentStrategy` design, MCP-compatible tool boundaries, context engineering, verification-before-answer, reflection, and success-cost tradeoffs.
 
-中文定位：这是一个面向 Agent 算法 / 大模型应用 / Agent 工程岗位的公开展示项目。它把检索、工作区操作和敏感动作抽象成统一工具，由 agent 在同一批 CaseSpec 上执行任务，并输出 trace、policy decision、metrics 与 case report。
+中文定位：这是一个面向 Agent 算法 / 应用策略算法 / Agent eval / Context Engineering 岗位的公开展示项目。它不再主打 generic observability 或 audit harness，而是用统一 `CaseSpec` 比较不同 Agent 策略在检索、工具选择、验证、反思和上下文预算上的行为差异。
 
-## Why this project
+## Why This Project
 
-当前项目组合已经覆盖：
+当前作品组合已经覆盖：
 
 - AlgoCoach-Flywheel：后训练、verifier、simulator、data flywheel、评测与推理基础设施。
-- Loomstead：Agent runtime observability、trace、counterfactual replay、audit failure analysis。
+- Loomstead：Agent runtime observability、trace、counterfactual replay、audit failure-analysis、case-card-first 展示。
 - 公司项目经验：多 Agent 研判、大模型护栏、RAG 知识库、安全微服务与生产落地。
 
-ContextGuard Agent Lab 补齐公开展示中的高频缺口：
+ContextGuard 需要补齐的公开缺口是：
 
-- MCP / standard tool protocol boundary。
-- Agent planning / acting / reflection / repair loop。
-- RAG + Agent 融合的策略与成本评测。
-- Evidence-gated sensitive tool execution。
-- Coding-agent-like workspace task execution 的最小闭环。
+- MCP-compatible tool schema / tool boundary。
+- 标准化 Agent strategy ablation，而不是只展示单个运行时。
+- Context budget、tool budget、verification budget 的 success-cost frontier。
+- RAG / adversarial context 作为任务环境，而不是做 RAG 产品平台。
+- 面向面试的 strategy leaderboard、failure taxonomy 和 ablation report。
 
-## Core claim
+## Core Claim
 
-Context is not just retrieved; it is governed, traced, and evaluated.
+Agent tool use is a control policy. It should be evaluated under shared tasks, structured tool contracts, verification requirements, and budget constraints.
 
-## Initial scope
+## Current Status
 
-### Agent strategies
+The repository is in a design-review phase before the next implementation sprint. The existing code is a deterministic starter skeleton; it should not yet be presented as a completed strategy benchmark.
 
-- `react_agent`: simple observe-and-act loop。
-- `plan_execute_agent`: explicit plan then tool execution。
-- `reflective_agent`: retry after failed observation。
-- `guarded_agent`: policy gate before sensitive action。
-- `context_budget_agent`: placeholder for context-cost tradeoff experiments。
+## Initial Scope
 
-### Tool layer
+### Agent Strategies
 
+- `react_agent`: direct observe-act baseline with minimal planning。
+- `plan_execute_agent`: explicit plan, multi-step retrieval, then execution。
+- `verify_then_answer_agent`: answer only after citation / consistency verification。
+- `reflective_agent`: retry once after failed grader or tool observation。
+- `context_budget_agent`: choose retrieval/tool calls under context and cost budgets。
+- `guarded_agent`: kept as a small sensitive-action environment strategy, not the main project spine。
+
+### Tool Layer
+
+- Tool contract: `ToolSpec`, `ToolRegistry`, `ToolExecutor`。
 - Retrieval tools: `search_docs`, `read_doc`, `verify_citation`。
-- Workspace tools: `list_files`, `read_file`, `search_repo`, `apply_patch`, `run_tests`。
-- Sensitive tools: `export_data`, `delete_record`, `change_policy` as mock policy-gated actions。
+- Verification tools: `check_answer_support`, `detect_injection`, `grade_final`。
+- Budget tools / metadata: estimated context chars, tool cost, latency proxy。
+- Sensitive tools: small mock family for bounded policy cases only。
+- MCP adapter: FastMCP exposure for 2-3 core tools after in-process contracts are stable。
 
-### Evaluation dimensions
+### Evaluation Dimensions
 
 - Task success。
-- Tool-call efficiency。
-- Repair success。
-- Evidence coverage。
-- Unsafe allow rate。
-- False block rate。
-- Latency and approximate token/cost proxy。
+- Mean tool calls。
+- Context chars / cost proxy。
+- Citation coverage and unsupported answer rate。
+- Verification call rate and verification benefit。
+- Reflection recovery rate。
+- Budget violation rate。
+- Unsafe allow / false block only for the small sensitive-action family。
 
-## Repository layout
+## Repository Layout
 
 ```text
 contextguard-agent-lab/
@@ -61,24 +70,21 @@ contextguard-agent-lab/
   docs/                         # Design decisions and project plan
   reports/                      # Generated reports and case cards
   scripts/                      # CLI entrypoints
-  src/contextguard_agent_lab/    # Agent kernel, tools, guardrails, eval, trace
+  src/contextguard_agent_lab/    # Agent strategies, tools, eval, trace
   tests/                        # Unit tests
 ```
 
+## Design Review Workspace
 
-## Design review workspace
+- `docs/design/README.md`: design document index。
+- `docs/design/03_vision_and_positioning.md`: role positioning and portfolio fit。
+- `docs/design/04_architecture_skeleton.md`: architecture and module boundaries。
+- `docs/design/05_claim_and_eval_contract.md`: allowed claims and required evidence。
+- `docs/design/07_roadmap_and_gates.md`: phased gates。
+- `docs/design/09_loomstead_overlap_and_pivot.md`: overlap audit and pivot rationale。
+- `docs/review/00_multi_model_review_packet.md`: packet for the next external / multi-model review。
 
-The project is currently in a design-review phase before heavy implementation:
-
-- `docs/design/README.md`: design document index.
-- `docs/design/03_vision_and_positioning.md`: role positioning and portfolio fit.
-- `docs/design/04_architecture_skeleton.md`: architecture and module boundaries.
-- `docs/design/05_claim_and_eval_contract.md`: allowed claims and required evidence.
-- `docs/design/06_risk_register.md`: scope and failure-mode risks.
-- `docs/design/07_roadmap_and_gates.md`: phased gates.
-- `docs/design/08_background_snapshot.md`: sanitized background, portfolio fit, and target-role update.
-- `docs/review/00_multi_model_review_packet.md`: packet for external / multi-model review.
-## Quick start
+## Quick Start
 
 ```powershell
 python -m compileall -q src scripts tests
@@ -87,13 +93,11 @@ python scripts/run_eval.py --case-limit 3 --out reports/sample_run.jsonl
 python scripts/generate_report.py --run reports/sample_run.jsonl --out reports/sample_report.md
 ```
 
-## Honest boundaries
+## Honest Boundaries
 
-- This repo is an evaluation workbench and engineering pattern demo.
-- It does not claim production-grade enterprise security.
-- It does not implement a full Claude Code / Codex replacement.
-- It uses toy public cases first; real company data is excluded by design.
-- A2A is reserved as a thin reviewer handoff stretch goal.
-
-
-
+- This repo is an agent strategy benchmark and engineering pattern demo。
+- It does not claim production-grade enterprise security。
+- It does not implement a full Claude Code / Codex replacement。
+- It does not replace Loomstead's observability / audit story。
+- It uses toy public cases first; company data is excluded by design。
+- `MCP-compatible` means tool contracts first; FastMCP adapter becomes claimable only after it is implemented and demonstrated。

@@ -2,49 +2,64 @@
 
 ## 1. 一句话定位
 
-ContextGuard Agent Lab 是一个 MCP-native、evidence-governed 的 Agent 评测工作台，用统一 benchmark 评估 Agent 在上下文获取、工具执行、敏感动作拦截、失败修复和可追溯性上的表现。
+ContextGuard Agent Lab 是一个 MCP-compatible Agent Strategy Benchmark，用统一任务集评估不同 Agent 策略在检索、工具调用、验证、反思和上下文预算上的成功率与成本权衡。
 
-## 2. 当前画像与开工动机
+英文版：
+
+```text
+A reproducible benchmark for studying cost-aware agent control policies across retrieval, verification, reflection, and tool-use tasks.
+```
+
+## 2. 开工动机
 
 现有求职资产已经覆盖：
 
 - 公司项目：多 Agent 研判、大模型护栏、RAG 知识库、安全微服务、文件综合研判。
 - AlgoCoach-Flywheel：后训练、verifier、simulator、data flywheel、eval infrastructure。
-- Loomstead：Agent runtime observability、trace、counterfactual replay、audit case cards。
+- Loomstead：Agent runtime observability、trace、counterfactual replay、audit failure-analysis、portfolio case cards。
 
 剩余需要公开补强的能力：
 
-- 标准协议边界：MCP / optional A2A。
-- 可评测 Agent kernel：plan / act / observe / reflect / repair。
-- RAG + Agent 融合策略：检索收益、成本、上下文预算。
-- Evidence-gated tool execution：敏感工具调用的证据契约与审计。
-- Coding-agent-like workspace loop：读取失败、修改、重跑、记录 trace。
+- MCP-compatible 工具协议边界。
+- 多 Agent strategy 的统一 benchmark 与 ablation。
+- Context budget / tool budget / verification budget 的 success-cost frontier。
+- RAG + adversarial context 的策略评测，而不是 RAG 产品平台。
+- 面向 Agent 算法 / 应用策略岗位的报告化实验结论。
 
 ## 3. 推荐项目主张
 
-原始 ContextGuard Lab 偏向 RAG / Guardrail workbench。为冲 Agent 算法、应用策略算法、Agent 评测算法岗位，本项目主轴升级为：
+旧版主轴偏 `evidence-governed tool execution`，与 Loomstead 的 audit / trace 展示重合。新版主轴收敛为：
 
 ```text
-Agent kernel + MCP tools + evidence policy + eval harness + case cards
+Agent strategy eval + MCP-compatible tools + context budget + verification + ablation report
 ```
 
-## 4. 一个月成功定义
+项目要回答的问题：
+
+1. 同一批任务下，`react`、`plan_execute`、`verify_then_answer`、`reflective`、`context_budget` 策略有什么行为差异？
+2. 哪些策略更成功，哪些策略更省工具调用 / 上下文 / 验证成本？
+3. 在 adversarial context 和 unsupported-answer 风险下，验证策略是否值得额外成本？
+4. MCP-compatible tool boundary 如何让策略评测保持结构化、可复现、可扩展？
+
+## 4. 一个月 Portfolio MVP 成功定义
 
 ```text
-[ ] 80-120 条总 case。
-[ ] 20+ toy code repair tasks。
-[ ] MCP retrieval + workspace tools 跑通。
-[ ] 至少 4 种 agent strategy 对比。
-[ ] guarded agent 产出 evidence gate trace。
-[ ] full report 包含 success / safety / cost / latency / ablation。
-[ ] 3 张 case card：RAG、guardrail、code repair。
+[ ] 4 个真实可区分策略：react / plan_execute / verify_then_answer / context_budget。
+[ ] ToolSpec + ToolRegistry + ToolExecutor，所有工具调用结构化可追踪。
+[ ] 20-30 条高质量 case，覆盖 retrieval QA、adversarial context、verification-needed、budget pressure。
+[ ] strategy ablation report 展示 success / tool calls / context chars / cost_proxy / unsupported_answer_rate。
+[ ] 至少 3 个 bad case 进入 failure taxonomy。
+[ ] README 首页能从 claim 跳到 leaderboard、report 和代表性 case card。
 ```
+
+Full target 可以再加入 FastMCP adapter、reflective repair、少量 sensitive action 与 coding fixture。
 
 ## 5. 坍缩防线
 
 - 不做通用 RAG 产品平台。
+- 不做 Loomstead 已覆盖的 observability / audit 主线。
+- 不做完整 coding agent。
 - 不做重 UI。
-- 不堆普通 guardrail 样例。
-- A2A 只作为 W4 thin reviewer handoff。
+- `MCP-compatible` 在 FastMCP adapter 跑通前只声明 tool contract / in-process boundary。
 - 所有功能必须进入 metric、trace、report 或 case card。
 - 不引入公司数据和内部策略。

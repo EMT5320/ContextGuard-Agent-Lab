@@ -1,29 +1,30 @@
-﻿# Design Docs Index
+# Design Docs
 
-> 状态：设计审稿期。本文是 ContextGuard Agent Lab 的设计导航页，目标是在大规模实现前暴露愿景、范围、风险、评测和路线问题。
+> 状态：设计审稿期。本文是 ContextGuard Agent Lab 的设计导航页，目标是在大规模实现前锁定新版主轴：MCP-compatible Agent Strategy Benchmark。
 
-## 1. 必读顺序
+## Current Design Set
 
-1. `00_project_brief_2026-06-08.md`：项目定位与开工动机。
-2. `03_vision_and_positioning.md`：目标岗位、公开作品组合、差异化主张。
-3. `01_agent_kernel_design.md`：Agent kernel 与策略对比。
-4. `04_architecture_skeleton.md`：模块边界、数据流、工具边界。
-5. `02_eval_plan.md`：评测 case families 与指标。
-6. `05_claim_and_eval_contract.md`：项目能承诺的 claim 与证据契约。
-7. `06_risk_register.md`：Loomstead 式中途坍缩风险、缓解动作、kill criteria。
+1. `00_project_brief_2026-06-08.md`：项目简报与新版一句话定位。
+2. `01_agent_kernel_design.md`：Agent strategy、kernel loop、ToolExecutor 和策略分化设计。
+3. `02_eval_plan.md`：case families、metrics、reports 和 failure taxonomy。
+4. `03_vision_and_positioning.md`：目标岗位、公开作品组合、差异化主张。
+5. `04_architecture_skeleton.md`：架构层次、数据流和模块边界。
+6. `05_claim_and_eval_contract.md`：公开 claim 与 required evidence。
+7. `06_risk_register.md`：范围、重合、评测有效性和时间风险。
 8. `07_roadmap_and_gates.md`：阶段门槛与实现顺序。
-9. `08_background_snapshot.md`：脱敏背景、现有作品组合、求职目标与缺口更新。
+9. `08_background_snapshot.md`：脱敏背景、作品组合和目标岗位梯度。
+10. `09_loomstead_overlap_and_pivot.md`：Loomstead 重合审计与 pivot 决策。
 
-## 2. 审稿入口
+## Review Inputs
 
-- `../review/00_multi_model_review_packet.md`：给其他模型的统一审稿包。
+- `../review/00_multi_model_review_packet.md`：给其他模型的新版统一审稿包。
 - `../review/01_reviewer_questionnaire.md`：结构化问题清单。
+- `../review/reviews/`：历史 review。注意：其中一部分基于旧版 `evidence-governed` 方案，不应视为当前最终方案。
 
-## 3. 当前原则
+## Current Spine
 
-- 设计审稿期优先暴露问题，暂缓堆实现。
-- 所有核心能力必须落到 metric、trace、report 或 case card。
-- 公开项目不使用公司数据和内部策略。
-- 项目主张收敛前，README 只保留 honest draft wording。
+```text
+AgentStrategy + ToolSpec/ToolExecutor + MCP-compatible boundary + context budget + strategy ablation + Markdown reports
+```
 
-
+RAG、adversarial context、sensitive action 和 coding fixture 都是任务环境，不是项目本体。
