@@ -20,6 +20,16 @@ The current MVP strategies are `react`, `plan_execute`, `verify_then_answer`, an
 | Cost and context accounting | `cost_proxy`, `context_chars_used`, per-call trace fields |
 | Seed strategy comparison | `reports/sample_report.md`, `reports/agent_strategy_ablation.md` |
 
+## Claim-Evidence Map
+
+| Claim | Evidence Artifact |
+|---|---|
+| Same cases compare multiple deterministic agent strategies. | `reports/agent_strategy_ablation.md`, `reports/agent_strategy_ablation.jsonl` |
+| Tool use is exposed through an MCP-compatible in-process boundary. | `reports/tool_manifest.json`, `src/contextguard_agent_lab/tools/registry.py` |
+| Independent grading is stored separately from agent answers. | `grader_result` fields in `reports/agent_strategy_ablation.jsonl` |
+| Context and budget tradeoffs are measurable. | `reports/context_budget_frontier.md`, `reports/agent_strategy_ablation.md` |
+| Representative strategy splits are inspectable. | `reports/case_cards.md` |
+
 ## 3-Minute Run
 
 ```powershell
