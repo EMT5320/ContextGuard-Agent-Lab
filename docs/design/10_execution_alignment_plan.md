@@ -29,7 +29,7 @@ The project is not complete because any one phase can run a small scenario. It i
 | Algorithm signal | Cost-aware control policy and VoI budget heuristic first | Stronger than label-only deterministic branches and still reproducible. |
 | Sensitive action | 1-2 MVP smoke / tool-boundary cases at most | Supports boundary evaluation without reviving the old audit spine. |
 | Coding fixture | Excluded from MVP quickstart | Only add if reflective repair strengthens strategy ablation. |
-| UI | Cut from mainline | CLI, JSONL, Markdown reports carry the portfolio evidence. |
+| Showcase layer | Lightweight landing, report index, and optional static page | Heavy app UI is cut, but reviewer-facing entry quality is required from Phase 1. |
 
 ## 3. Current Alignment Gaps
 
@@ -52,7 +52,7 @@ Parallel agents should own one workstream at a time and avoid changing another w
 | Tool Boundary | `src/.../tools/`, `src/.../mcp_server/`, tool tests | `ToolSpec`, `ToolRegistry`, `ToolExecutor`, manifest, retrieval and verification tools | Grader success policy except tool-observation payloads. |
 | Strategy Kernel | `src/.../agents/`, agent tests | `AgentStrategy`, kernel loop, four MVP strategies, strategy action traces | Final success scoring. |
 | Eval And Reports | `src/.../eval/`, `scripts/generate_report.py`, `reports/` | independent graders, metrics, frontier, case cards, Markdown reports | Tool implementation details. |
-| Public Packaging | `README.md`, `docs/design/`, `docs/review/`, resume bullets | claim-evidence mapping, roadmap, public story, docs consistency | Core implementation behavior without tests. |
+| Showcase And Packaging | `README.md`, `reports/README.md`, `docs/design/`, `docs/review/`, resume bullets | landing page, artifact index, claim-evidence mapping, public story | Core implementation behavior without tests. |
 
 Handoff rule: each agent should report changed files, commands run, new artifacts generated, and any claim that still lacks evidence.
 
@@ -136,6 +136,25 @@ Exit gate:
 [ ] At least 20% of cases fail or exceed budget under at least one strategy.
 [ ] `unsupported_answer_rate` differs between `react` and `verify_then_answer`.
 [ ] Report includes by-family metrics and initial failure taxonomy.
+```
+
+### Phase 2.5: Showcase Entry Upgrade
+
+Goal: keep public presentation aligned before the full ablation report grows.
+
+Implementation content:
+
+- Keep README as a short landing page, not a design memo.
+- Update `reports/README.md` whenever a new report, trace, manifest, or case-card artifact is added.
+- Add a first case card once a case demonstrates a real strategy split.
+- Decide whether Markdown is enough or a static showcase page is needed after Phase 3.
+
+Exit gate:
+
+```text
+[ ] README can be understood in 3 minutes.
+[ ] Reports index links generated artifacts and planned final artifacts.
+[ ] At least one visible artifact shows a strategy difference beyond cost-only rows.
 ```
 
 ### Phase 3: Cost-Aware Control Policy
@@ -243,6 +262,7 @@ Expansion gate:
 - Do not add UI, vector database plumbing, large guardrail libraries, A2A, or full coding-agent behavior in MVP.
 - Do not use `toy_code_repair` as a public success example until it applies a patch and reruns tests.
 - Do not make sensitive-action policy the main project story; it is a bounded task family.
+- Do not let README become a long positioning memo; move rationale to design docs.
 
 ## 8. Reviewer-Facing Definition Of Done
 
@@ -253,12 +273,14 @@ python -m compileall -q src scripts tests
 python -m unittest discover -s tests
 python scripts/run_eval.py --strategies react,plan_execute,verify_then_answer,context_budget --out reports/mvp_run.jsonl
 python scripts/generate_report.py --run reports/mvp_run.jsonl --out reports/agent_strategy_ablation.md
+python scripts/export_tool_manifest.py --out reports/tool_manifest.json
 ```
 
 Then the reviewer should see:
 
 - the same cases under four strategies.
 - structured tool calls with cost and context accounting.
+- a tool manifest with schema, risk, side-effect, cost, and MCP exposure metadata.
 - independent grader results.
 - by-strategy and by-family metrics.
 - unsupported-answer and budget-violation rates.

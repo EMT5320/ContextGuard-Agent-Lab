@@ -1,0 +1,45 @@
+[
+  {
+    "name": "search_docs",
+    "description": "Search public toy corpus documents.",
+    "input_schema": {
+      "type": "object",
+      "required": [
+        "query"
+      ]
+    },
+    "output_schema": {
+      "type": "object",
+      "required": [
+        "doc_ids",
+        "chunks"
+      ]
+    },
+    "risk_level": "low",
+    "side_effect": "none",
+    "cost_estimate": 1.0,
+    "mcp_exposure": "manifest"
+  },
+  {
+    "name": "verify_citation",
+    "description": "Check whether a final answer is supported by retrieved evidence.",
+    "input_schema": {
+      "type": "object",
+      "required": [
+        "answer",
+        "doc_ids"
+      ]
+    },
+    "output_schema": {
+      "type": "object",
+      "required": [
+        "supported",
+        "citation_coverage"
+      ]
+    },
+    "risk_level": "low",
+    "side_effect": "none",
+    "cost_estimate": 1.5,
+    "mcp_exposure": "manifest"
+  }
+]

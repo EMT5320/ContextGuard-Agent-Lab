@@ -1,6 +1,6 @@
 # Design Docs
 
-> 状态：设计审稿期。本文是 ContextGuard Agent Lab 的设计导航页，目标是在大规模实现前锁定新版主轴：MCP-compatible Agent Strategy Benchmark。
+> 状态：Phase 1 implementation。本文是 ContextGuard Agent Lab 的设计导航页，当前主轴为 MCP-compatible Agent Strategy Benchmark。
 
 ## Current Design Set
 
@@ -15,7 +15,8 @@
 9. `08_background_snapshot.md`：脱敏背景、作品组合和目标岗位梯度。
 10. `09_loomstead_overlap_and_pivot.md`：Loomstead 重合审计与 pivot 决策。
 11. `10_execution_alignment_plan.md`：面向多 agent 并行开发的执行计划、阶段边界和防漂移约束。
-12. `../review/02_round2_synthesis.md`：round2 多模型审稿吸收矩阵与最终执行顺序。
+12. `11_showcase_entry_design.md`：README、报告索引和轻量展示入口设计。
+13. `../review/02_round2_synthesis.md`：round2 多模型审稿吸收矩阵与最终执行顺序。
 
 ## Review Inputs
 

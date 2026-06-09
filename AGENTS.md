@@ -18,7 +18,7 @@ ContextGuard Agent Lab 是一个 MCP-compatible、strategy-evaluation-first 的 
 - 不引入公司数据、内部接口、内部安全策略或私密路径。
 - 不声明企业级安全能力，只声明 bounded benchmark 与 engineering pattern。
 - 任何新增功能都应进入至少一个 report、trace、metric 或 case card。
-- UI 暂不进入主线，优先 CLI、JSONL trace、Markdown report。
+- 重 UI 暂不进入主线；README、reports index、CLI、JSONL trace、Markdown report 是必须维护的展示入口。
 - 后续多 agent 并行开发时，先对齐 `10_execution_alignment_plan.md` 的工作流分工；不要把阶段目标坍缩成互不关联的小 demo。
 - `toy_code_repair`、reflective repair、LLM planner、FastMCP adapter 都不是 MVP blocker；除非已有 trace / grader / report 证据，否则不要把它们写成已实现主张。
 
@@ -29,6 +29,7 @@ python -m compileall -q src scripts tests
 python -m unittest discover -s tests
 python scripts/run_eval.py --case-limit 3 --strategies react,plan_execute,verify_then_answer,context_budget --out reports/sample_run.jsonl
 python scripts/generate_report.py --run reports/sample_run.jsonl --out reports/sample_report.md
+python scripts/export_tool_manifest.py --out reports/tool_manifest.json
 ```
 
 默认报告是 starter smoke artifact，不是正式 strategy benchmark 证据。

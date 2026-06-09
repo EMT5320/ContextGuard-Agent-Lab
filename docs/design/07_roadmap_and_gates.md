@@ -106,6 +106,25 @@ Gate:
 [ ] sample report includes by-family metrics
 ```
 
+## Phase 2.5: Showcase Entry Upgrade
+
+Goal: make the project understandable before the final public packaging phase.
+
+Deliverables:
+
+- README kept as a concise landing page。
+- `reports/README.md` updated as artifact index。
+- first case card or report excerpt showing a real strategy split。
+- optional static showcase decision recorded after Phase 3 report quality is known。
+
+Gate:
+
+```text
+[ ] README explains what runs, what is compared, and where artifacts are in 3 minutes
+[ ] Report index links generated traces, reports, manifests, and planned case cards
+[ ] Showcase layer reuses existing artifacts instead of creating a separate product UI
+```
+
 ## Phase 3: Context Budget and Ablation Report
 
 Goal: make cost-aware strategy tradeoffs visible.
@@ -146,6 +165,7 @@ Deliverables:
 - final README evidence table。
 - architecture diagram。
 - resume bullets。
+- optional static showcase page if Markdown artifacts are no longer enough。
 
 FastMCP remains optional until the in-process `ToolSpec` / `ToolExecutor` boundary is stable. If it is not implemented, README must keep `MCP-compatible` wording and avoid `MCP-native` claims。
 

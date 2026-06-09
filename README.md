@@ -1,113 +1,110 @@
 # ContextGuard Agent Lab
 
-> MCP-compatible agent strategy benchmark for governed tool use, retrieval, verification, and context budget tradeoffs.
+> Run the same agent task across multiple control strategies, then compare tool traces, independent grading, and success-cost tradeoffs.
 
-ContextGuard Agent Lab is a small reproducible portfolio project for comparing agent control strategies under the same benchmark cases. It focuses on `AgentStrategy` design, MCP-compatible tool boundaries, context engineering, verification-before-answer, context-budget policy, and success-cost tradeoffs. Reflection is a full-target extension after the deterministic benchmark is stable.
-
-中文定位：这是一个面向 Agent 算法 / 应用策略算法 / Agent eval / Context Engineering 岗位的公开展示项目。它不再主打 generic observability 或 audit harness，而是用统一 `CaseSpec` 比较不同 Agent 策略在检索、工具选择、验证、反思和上下文预算上的行为差异。
-
-## Why This Project
-
-当前作品组合已经覆盖：
-
-- AlgoCoach-Flywheel：后训练、verifier、simulator、data flywheel、评测与推理基础设施。
-- Loomstead：Agent runtime observability、trace、counterfactual replay、audit failure-analysis、case-card-first 展示。
-- 公司项目经验：多 Agent 研判、大模型护栏、RAG 知识库、安全微服务与生产落地。
-
-ContextGuard 需要补齐的公开缺口是：
-
-- MCP-compatible tool schema / tool boundary。
-- 标准化 Agent strategy ablation，而不是只展示单个运行时。
-- Context budget、tool budget、verification budget 的 success-cost frontier。
-- RAG / adversarial context 作为任务环境，而不是做 RAG 产品平台。
-- 面向面试的 strategy leaderboard、failure taxonomy 和 ablation report。
-
-## Core Claim
-
-Agent tool use is a control policy. It should be evaluated under shared tasks, structured tool contracts, verification requirements, and budget constraints.
-
-## Current Status
-
-The repository is in Phase 1 implementation after Round 2 design review. It now has starter `BudgetSpec`, `ExpectedOutcome`, `GraderSpec`, `ToolSpec`, `ToolExecutor`, `AgentStrategy`, independent grader, and multi-strategy smoke workflow support. It should not yet be presented as a completed strategy benchmark because the case suite and ablation reports are still starter artifacts.
-
-## Initial Scope
-
-### MVP Agent Strategies
-
-- `react_agent`: direct observe-act baseline with minimal planning。
-- `plan_execute_agent`: explicit plan, multi-step retrieval, then execution。
-- `verify_then_answer_agent`: answer only after citation / consistency verification。
-- `context_budget_agent`: choose retrieval/tool calls under context and cost budgets。
-
-### Full-target Strategies
-
-- `reflective_agent`: retry once after failed grader or tool observation。
-- `llm_planner_agent`: optional cheap hosted/local model planner comparison after deterministic benchmark is stable。
-- `guarded_agent`: kept as a small sensitive-action environment strategy, not the main project spine。
-
-### Tool Layer
-
-- Tool contract: `ToolSpec`, `ToolRegistry`, `ToolExecutor`。
-- Tool manifest: `export_tool_manifest()` as the first MCP-compatible artifact。
-- Retrieval tools: `search_docs`, `read_doc`, `verify_citation`。
-- Verification tools: `check_answer_support`, `detect_injection`, `grade_final`。
-- Budget tools / metadata: estimated context chars, tool cost, latency proxy。
-- Sensitive tools: small mock family for bounded policy cases only。
-- MCP adapter: FastMCP exposure for 2-3 core tools after in-process contracts are stable。
-
-### Evaluation Dimensions
-
-- Task success。
-- Mean tool calls。
-- Context chars / cost proxy。
-- Citation coverage and unsupported answer rate。
-- Verification call rate and verification benefit。
-- Reflection recovery rate。
-- Budget violation rate。
-- Unsafe allow / false block only for the small sensitive-action family。
-
-## Repository Layout
+ContextGuard is a small MCP-compatible agent strategy benchmark. It answers one practical question:
 
 ```text
-contextguard-agent-lab/
-  config/                       # Policy and pipeline configs
-  data/                         # Public toy corpus and benchmark samples
-  docs/                         # Design decisions and project plan
-  reports/                      # Generated reports and case cards
-  scripts/                      # CLI entrypoints
-  src/contextguard_agent_lab/    # Agent strategies, tools, eval, trace
-  tests/                        # Unit tests
+When the task, tools, and budget stay fixed, how do different agent strategies behave?
 ```
 
-## Design Review Workspace
+The current MVP strategies are `react`, `plan_execute`, `verify_then_answer`, and `context_budget`.
 
-- `docs/design/README.md`: design document index。
-- `docs/design/03_vision_and_positioning.md`: role positioning and portfolio fit。
-- `docs/design/04_architecture_skeleton.md`: architecture and module boundaries。
-- `docs/design/05_claim_and_eval_contract.md`: allowed claims and required evidence。
-- `docs/design/07_roadmap_and_gates.md`: phased gates。
-- `docs/design/09_loomstead_overlap_and_pivot.md`: overlap audit and pivot rationale。
-- `docs/design/10_execution_alignment_plan.md`: execution plan for multi-agent implementation。
-- `docs/review/00_multi_model_review_packet.md`: packet for the next external / multi-model review。
-- `docs/review/02_round2_synthesis.md`: accepted Round 2 execution baseline。
+## What It Shows
 
-## Starter Smoke Workflow
+| Capability | Current Artifact |
+|---|---|
+| Same cases across multiple strategies | `scripts/run_eval.py --strategies ...` |
+| Structured tool boundary | `ToolSpec`, `ToolExecutor`, `reports/tool_manifest.json` |
+| Independent grading | `eval/graders.py`, `grader_result` in JSONL runs |
+| Cost and context accounting | `cost_proxy`, `context_chars_used`, per-call trace fields |
+| Starter strategy comparison | `reports/sample_report.md` |
 
-This workflow checks the starter skeleton and produces a smoke report. It is not final benchmark evidence yet.
+## 3-Minute Run
 
 ```powershell
 python -m compileall -q src scripts tests
 python -m unittest discover -s tests
-python scripts/run_eval.py --case-limit 3 --strategies react,plan_execute,verify_then_answer,context_budget --out reports/sample_run.jsonl
+python scripts/run_eval.py --case-limit 3 --out reports/sample_run.jsonl
 python scripts/generate_report.py --run reports/sample_run.jsonl --out reports/sample_report.md
+python scripts/export_tool_manifest.py --out reports/tool_manifest.json
 ```
 
-## Honest Boundaries
+The default smoke run executes 3 starter cases across 4 strategies and writes 12 run records.
 
-- This repo is an agent strategy benchmark and engineering pattern demo。
-- It does not claim production-grade enterprise security。
-- It does not implement a full Claude Code / Codex replacement。
-- It does not replace Loomstead's observability / audit story。
-- It uses toy public cases first; company data is excluded by design。
-- `MCP-compatible` means tool contracts first; FastMCP adapter becomes claimable only after it is implemented and demonstrated。
-- Public starter reports must not present `toy_code_repair` as an implemented success path before a real patch / test loop exists。
+## Inspect The Results
+
+| File | What To Look For |
+|---|---|
+| `reports/sample_report.md` | Compact table of case, strategy, success, cost, context, and grader reason. |
+| `reports/sample_run.jsonl` | Full structured run records with tool calls and independent grader output. |
+| `reports/tool_manifest.json` | MCP-compatible tool contract manifest with schemas, risk, side effect, and cost metadata. |
+| `data/benchmark/cases.sample.jsonl` | Starter `CaseSpec` examples with family, dimensions, budget, expected outcome, and grader spec. |
+
+## How It Works
+
+```text
+CaseSpec
+  -> AgentStrategy
+  -> ToolExecutor(ToolSpec)
+  -> RunRecord JSONL
+  -> independent GraderResult
+  -> Markdown report
+```
+
+Current strategy differences are intentionally small and deterministic:
+
+| Strategy | Behavior |
+|---|---|
+| `react` | Search once, answer directly. |
+| `plan_execute` | Retrieve more candidates before answering. |
+| `verify_then_answer` | Search, then call `verify_citation` before final grading. |
+| `context_budget` | Use conservative retrieval and verification under budget limits. |
+
+## Current Status
+
+Phase 1 is in progress. Implemented so far:
+
+- `BudgetSpec`, `ExpectedOutcome`, `GraderSpec`, and `GraderResult`.
+- `ToolSpec`, `ToolRegistry`, `ToolExecutor`, and manifest export.
+- `AgentStrategy` protocol and four deterministic MVP strategy skeletons.
+- Independent starter graders for retrieval QA, sensitive-action smoke cases, and unimplemented coding fixtures.
+- Multi-strategy CLI smoke workflow.
+
+The project is not yet a completed benchmark. The current report is a starter smoke artifact; the next milestone is adding 8-10 strategy-difference seed cases and richer by-strategy metrics.
+
+## Project Map
+
+```text
+contextguard-agent-lab/
+  data/benchmark/              # CaseSpec JSONL samples
+  data/corpus/                 # Public toy corpus
+  docs/design/                 # Architecture, execution, showcase plans
+  reports/                     # Generated traces, manifests, reports
+  scripts/                     # CLI entrypoints
+  src/contextguard_agent_lab/   # Strategies, tools, graders, traces
+  tests/                       # Unit tests
+```
+
+## Design Notes
+
+- Execution plan: `docs/design/10_execution_alignment_plan.md`
+- Showcase entry plan: `docs/design/11_showcase_entry_design.md`
+- Round 2 review baseline: `docs/review/02_round2_synthesis.md`
+- Claim and eval contract: `docs/design/05_claim_and_eval_contract.md`
+
+## Next Milestones
+
+| Milestone | Output |
+|---|---|
+| Seed case suite | 8-10 cases designed by retrieval depth, verification timing, budget pressure, adversarial context, and tool-boundary dimensions. |
+| Report upgrade | By-strategy metrics, by-family metrics, unsupported-answer rate, and budget-violation rate. |
+| Budget policy upgrade | Value-of-information heuristic and success-cost frontier. |
+| Showcase entry | A lightweight report index or static HTML entry that points to traces, manifests, reports, and case cards. |
+
+## Boundaries
+
+- Uses public toy data only.
+- `MCP-compatible` currently means structured in-process tool contracts and manifest export.
+- FastMCP adapter, reflective repair, LLM planner, and coding repair fixtures are later targets.
+- The project avoids heavy UI; the display layer should stay lightweight and artifact-driven.
