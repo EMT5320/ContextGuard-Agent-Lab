@@ -8,6 +8,7 @@ venv/
 
 # Local run outputs
 .run/
+.worktrees/
 reports/generated/
 *.log
 
