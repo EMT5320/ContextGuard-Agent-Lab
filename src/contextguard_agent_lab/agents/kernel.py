@@ -8,6 +8,7 @@ plugged in later.
 from __future__ import annotations
 
 from contextguard_agent_lab.agents.state import AgentState
+from contextguard_agent_lab.agents.strategies import resolve_strategy
 from contextguard_agent_lab.benchmark.schema import CaseSpec, RunRecord
 from contextguard_agent_lab.eval.graders import grade_run
 from contextguard_agent_lab.guardrails.policy import EvidencePolicyEngine
@@ -21,11 +22,12 @@ class AgentKernel:
         self.tools = tools
         self.policy_engine = policy_engine
 
-    def run(self, case: CaseSpec, strategy: str = "guarded_agent") -> RunRecord:
+    def run(self, case: CaseSpec, strategy: str = "react") -> RunRecord:
         """Run one case with a deterministic starter policy."""
 
-        state = AgentState(case=case, strategy=strategy)
-        state.plan = self._plan(case, strategy)
+        strategy_impl = resolve_strategy(strategy)
+        state = AgentState(case=case, strategy=strategy_impl.name)
+        state.plan = strategy_impl.plan(state)
 
         if case.case_type == "sensitive_action" and case.sensitive_action:
             decision = self.policy_engine.decide(
@@ -39,7 +41,7 @@ class AgentKernel:
                 case,
                 RunRecord(
                     case_id=case.case_id,
-                    strategy=strategy,
+                    strategy=strategy_impl.name,
                     answer=answer,
                     success=False,
                     family=case.family,
@@ -51,14 +53,25 @@ class AgentKernel:
             )
 
         if case.case_type == "rag_qa":
-            result = self.tools.call("search_docs", {"query": case.user_query, "top_k": 1})
+            top_k = strategy_impl.retrieval_top_k(case, state)
+            result = self.tools.call("search_docs", {"query": case.user_query, "top_k": top_k})
             state.tool_calls.append(result.trace(case.case_id, step_index=1))
             answer = result.payload.get("answer_hint", "No answer found.")
+            if strategy_impl.should_verify_answer(case, state):
+                verification = self.tools.call(
+                    "verify_citation",
+                    {
+                        "answer": answer,
+                        "doc_ids": result.payload.get("doc_ids", []),
+                        "expected_doc_ids": case.expected_outcome.gold_doc_ids,
+                    },
+                )
+                state.tool_calls.append(verification.trace(case.case_id, step_index=2))
             return self._finalize(
                 case,
                 RunRecord(
                     case_id=case.case_id,
-                    strategy=strategy,
+                    strategy=strategy_impl.name,
                     answer=answer,
                     success=False,
                     family=case.family,
@@ -79,7 +92,7 @@ class AgentKernel:
                 case,
                 RunRecord(
                     case_id=case.case_id,
-                    strategy=strategy,
+                    strategy=strategy_impl.name,
                     answer=answer,
                     success=False,
                     family=case.family,
@@ -92,7 +105,7 @@ class AgentKernel:
             case,
             RunRecord(
                 case_id=case.case_id,
-                strategy=strategy,
+                strategy=strategy_impl.name,
                 answer="unsupported case type",
                 success=False,
                 family=case.family,
@@ -109,14 +122,3 @@ class AgentKernel:
         record.metrics.update(grader_result.metrics)
         record.metrics["budget_violation"] = grader_result.budget_violation
         return record
-
-    def _plan(self, case: CaseSpec, strategy: str) -> list[str]:
-        """Create a simple plan for trace readability."""
-
-        if case.case_type == "rag_qa":
-            return ["search relevant docs", "verify gold citation", "answer with source"]
-        if case.case_type == "sensitive_action":
-            return ["collect evidence", "evaluate policy", "allow/block/review"]
-        if case.case_type == "toy_code_repair":
-            return ["read failing test", "apply patch", "rerun tests"]
-        return [f"handle with {strategy}"]

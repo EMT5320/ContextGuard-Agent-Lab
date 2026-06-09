@@ -14,10 +14,11 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from contextguard_agent_lab.agents.kernel import AgentKernel
+from contextguard_agent_lab.agents.strategies import parse_strategy_list
 from contextguard_agent_lab.benchmark.loader import load_cases
 from contextguard_agent_lab.guardrails.policy import EvidencePolicyEngine
 from contextguard_agent_lab.tools.registry import ToolExecutor, ToolRegistry, ToolSpec
-from contextguard_agent_lab.tools.retrieval import InMemoryRetriever
+from contextguard_agent_lab.tools.retrieval import InMemoryRetriever, verify_citation
 from contextguard_agent_lab.trace.jsonl import write_run_records
 
 
@@ -47,6 +48,31 @@ def build_kernel(repo_root: Path) -> AgentKernel:
             mcp_exposure="manifest",
         ),
     )
+    registry.register(
+        "verify_citation",
+        verify_citation,
+        ToolSpec(
+            name="verify_citation",
+            description="Verify whether retrieved document ids support the answer.",
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "answer": {"type": "string"},
+                    "doc_ids": {"type": "array"},
+                    "expected_doc_ids": {"type": "array"},
+                },
+                "required": ["answer", "doc_ids"],
+            },
+            output_schema={
+                "type": "object",
+                "properties": {"supported": {"type": "boolean"}, "citation_coverage": {"type": "number"}},
+            },
+            risk_level="low",
+            side_effect="none",
+            cost_estimate=1.5,
+            mcp_exposure="manifest",
+        ),
+    )
     policy = EvidencePolicyEngine.from_json(repo_root / "config" / "policies.json")
     return AgentKernel(tools=ToolExecutor(registry), policy_engine=policy)
 
@@ -57,7 +83,8 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--cases", default="data/benchmark/cases.sample.jsonl")
     parser.add_argument("--case-limit", type=int, default=None)
-    parser.add_argument("--strategy", default="guarded_agent")
+    parser.add_argument("--strategy", default=None, help="Single strategy to run when --strategies is omitted.")
+    parser.add_argument("--strategies", default=None, help="Comma-separated strategies to run on each case.")
     parser.add_argument("--out", default="reports/sample_run.jsonl")
     args = parser.parse_args()
 
@@ -66,7 +93,9 @@ def main() -> None:
         cases = cases[: args.case_limit]
 
     kernel = build_kernel(REPO_ROOT)
-    records = [kernel.run(case, strategy=args.strategy) for case in cases]
+    strategy_arg = args.strategies or args.strategy or "react,plan_execute,verify_then_answer,context_budget"
+    strategy_names = parse_strategy_list(strategy_arg)
+    records = [kernel.run(case, strategy=strategy) for case in cases for strategy in strategy_names]
     write_run_records(REPO_ROOT / args.out, records)
     print(f"wrote {len(records)} records to {args.out}")
 

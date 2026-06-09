@@ -35,10 +35,10 @@ The project is not complete because any one phase can run a small scenario. It i
 
 | Gap | Current Symptom | Blocking Risk | Target Resolution |
 |---|---|---|---|
-| Strategy is label-only | `AgentKernel.run(case, strategy)` routes mostly by `case_type` | Ablation has no validity | Introduce `AgentStrategy` protocol and strategy classes. |
-| Success is self-scored | Kernel sets `success` inside task branches | Agent can grade itself | Move grading to `eval/graders.py`. |
-| Tool boundary is shallow | Registry has function names but no full `ToolSpec` | `MCP-compatible` looks like a label | Add schema, risk, side-effect, cost, and manifest export. |
-| Budget signal is missing | No `BudgetSpec`, context chars, cost proxy accounting | `context_budget_agent` can become throttling | Add budget schema and per-call accounting. |
+| Strategy is too shallow | `AgentStrategy` exists, but current strategies only vary retrieval depth and verification timing | Ablation can remain thin | Expand cases and strategy actions before claiming benchmark results. |
+| Grading is starter-only | `eval/graders.py` exists for starter families | Eval validity can be overstated | Add family-specific graders and negative controls. |
+| Tool boundary is partial | `ToolSpec` / `ToolExecutor` exist for starter retrieval and verification tools | MCP-compatible evidence remains narrow | Add read / verify / tool-boundary tools and manifest coverage. |
+| Budget signal is partial | `BudgetSpec` and per-call accounting exist | `context_budget_agent` can still become throttling | Add explicit VoI scoring and budget-pressure cases. |
 | Report is smoke-only | Starter report is not strategy ablation | Public claims can overreach | Keep smoke wording until by-strategy report exists. |
 | Cases are not dimension-led yet | Starter cases are task-type examples | Strategies may not separate | Author cases by strategy-difference dimensions. |
 

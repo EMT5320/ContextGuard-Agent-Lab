@@ -42,3 +42,17 @@ class InMemoryRetriever:
             "chunks": selected,
             "answer_hint": selected[0].get("text", "") if selected else "",
         }
+
+
+def verify_citation(arguments: dict[str, Any]) -> dict[str, Any]:
+    """Check whether observed document ids cover expected citations."""
+
+    observed = {str(doc_id) for doc_id in arguments.get("doc_ids", [])}
+    expected = {str(doc_id) for doc_id in arguments.get("expected_doc_ids", [])}
+    matched = observed.intersection(expected)
+    coverage = (len(matched) / len(expected)) if expected else 1.0
+    return {
+        "supported": coverage >= 1.0,
+        "citation_coverage": coverage,
+        "matched_doc_ids": sorted(matched),
+    }

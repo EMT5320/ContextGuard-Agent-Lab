@@ -27,7 +27,7 @@ ContextGuard Agent Lab 是一个 MCP-compatible、strategy-evaluation-first 的 
 ```powershell
 python -m compileall -q src scripts tests
 python -m unittest discover -s tests
-python scripts/run_eval.py --case-limit 3 --out reports/sample_run.jsonl
+python scripts/run_eval.py --case-limit 3 --strategies react,plan_execute,verify_then_answer,context_budget --out reports/sample_run.jsonl
 python scripts/generate_report.py --run reports/sample_run.jsonl --out reports/sample_report.md
 ```
 

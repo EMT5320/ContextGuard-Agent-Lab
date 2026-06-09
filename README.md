@@ -28,7 +28,7 @@ Agent tool use is a control policy. It should be evaluated under shared tasks, s
 
 ## Current Status
 
-The repository is in pre-sprint alignment after Round 2 design review. The existing code is a deterministic starter skeleton; it should not yet be presented as a completed strategy benchmark.
+The repository is in Phase 1 implementation after Round 2 design review. It now has starter `BudgetSpec`, `ExpectedOutcome`, `GraderSpec`, `ToolSpec`, `ToolExecutor`, `AgentStrategy`, independent grader, and multi-strategy smoke workflow support. It should not yet be presented as a completed strategy benchmark because the case suite and ablation reports are still starter artifacts.
 
 ## Initial Scope
 
@@ -98,7 +98,7 @@ This workflow checks the starter skeleton and produces a smoke report. It is not
 ```powershell
 python -m compileall -q src scripts tests
 python -m unittest discover -s tests
-python scripts/run_eval.py --case-limit 3 --out reports/sample_run.jsonl
+python scripts/run_eval.py --case-limit 3 --strategies react,plan_execute,verify_then_answer,context_budget --out reports/sample_run.jsonl
 python scripts/generate_report.py --run reports/sample_run.jsonl --out reports/sample_report.md
 ```
 

@@ -1,0 +1,83 @@
+"""Tests for deterministic AgentStrategy behavior."""
+
+import sys
+import unittest
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from contextguard_agent_lab.agents.kernel import AgentKernel
+from contextguard_agent_lab.agents.strategies import parse_strategy_list, resolve_strategy
+from contextguard_agent_lab.benchmark.schema import CaseSpec
+from contextguard_agent_lab.guardrails.policy import EvidencePolicyEngine
+from contextguard_agent_lab.tools.registry import ToolExecutor, ToolRegistry, ToolSpec
+from contextguard_agent_lab.tools.retrieval import InMemoryRetriever, verify_citation
+
+
+class StrategyTest(unittest.TestCase):
+    """Strategy interface unit tests."""
+
+    def test_strategy_resolver_accepts_aliases(self) -> None:
+        """CLI aliases should resolve to MVP strategy names."""
+
+        self.assertEqual(resolve_strategy("react_agent").name, "react")
+        self.assertEqual(resolve_strategy("plan-execute").name, "plan_execute")
+        self.assertEqual(parse_strategy_list("react, plan_execute"), ["react", "plan_execute"])
+
+    def test_strategies_change_tool_sequences(self) -> None:
+        """Plan and verify strategies should produce observable tool differences."""
+
+        kernel = AgentKernel(tools=_build_tools(), policy_engine=EvidencePolicyEngine({}))
+        case = CaseSpec(
+            case_id="case-rag",
+            case_type="rag_qa",
+            user_query="MCP retrieval tool",
+            expected_answer="search and read",
+            gold_doc_ids=["mcp_intro"],
+            budget={"max_tool_calls": 4, "max_context_chars": 2000, "max_verification_calls": 1},
+        )
+
+        react = kernel.run(case, strategy="react")
+        plan_execute = kernel.run(case, strategy="plan_execute")
+        verify = kernel.run(case, strategy="verify_then_answer")
+
+        self.assertEqual(react.tool_calls[0].arguments["top_k"], 1)
+        self.assertEqual(plan_execute.tool_calls[0].arguments["top_k"], 2)
+        self.assertEqual([call.tool_name for call in verify.tool_calls], ["search_docs", "verify_citation"])
+        self.assertTrue(verify.success)
+
+
+def _build_tools() -> ToolExecutor:
+    """Build the small tool executor used by strategy tests."""
+
+    retriever = InMemoryRetriever([
+        {"doc_id": "mcp_intro", "title": "MCP", "text": "A retrieval tool should expose search and read."},
+        {"doc_id": "other", "title": "Other", "text": "Additional context."},
+    ])
+    registry = ToolRegistry()
+    registry.register(
+        "search_docs",
+        retriever.search_docs,
+        ToolSpec(
+            name="search_docs",
+            description="Search docs.",
+            input_schema={"type": "object"},
+            output_schema={"type": "object"},
+        ),
+    )
+    registry.register(
+        "verify_citation",
+        verify_citation,
+        ToolSpec(
+            name="verify_citation",
+            description="Verify citations.",
+            input_schema={"type": "object"},
+            output_schema={"type": "object"},
+            cost_estimate=1.5,
+        ),
+    )
+    return ToolExecutor(registry)
+
+
+if __name__ == "__main__":
+    unittest.main()
