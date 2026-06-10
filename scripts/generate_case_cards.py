@@ -15,7 +15,14 @@ from contextguard_agent_lab.benchmark.loader import load_cases
 from contextguard_agent_lab.benchmark.schema import CaseSpec
 from contextguard_agent_lab.trace.jsonl import read_run_records
 
-PREFERRED_DIMENSIONS = ["retrieval_depth", "verification_timing", "budget_pressure", "adversarial_context", "tool_boundary"]
+PREFERRED_DIMENSIONS = [
+    "retrieval_depth",
+    "verification_timing",
+    "budget_pressure",
+    "adversarial_context",
+    "tool_boundary",
+    "source_reliability",
+]
 STRATEGY_ORDER = ["react", "plan_execute", "verify_then_answer", "context_budget"]
 
 
@@ -167,6 +174,8 @@ def _interpretation(case: CaseSpec, winners: list[str], losers: list[str]) -> st
         return "Verification timing is visible because strategies that call support checks can separate from direct-answer baselines."
     if "budget_pressure" in dimensions:
         return "Budget pressure is visible because strategies differ on context and cost constraints under the same case budget."
+    if "source_reliability" in dimensions:
+        return "Source reliability is visible because strategies differ on whether runtime provenance is used to reject lower-trust evidence."
     if "adversarial_context" in dimensions:
         return "Adversarial context behavior is visible because strategies face poisoned or distracting evidence under one shared grader."
     if "tool_boundary" in dimensions:

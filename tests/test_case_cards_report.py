@@ -89,6 +89,28 @@ class CaseCardsReportTest(unittest.TestCase):
         self.assertIn("react", markdown)
         self.assertIn("What this demonstrates", markdown)
 
+    def test_source_reliability_cards_explain_provenance_signal(self) -> None:
+        """Source-reliability cards should describe the provenance split."""
+
+        case = CaseSpec(
+            case_id="cg_trust_split",
+            case_type="rag_qa",
+            family="source_reliability",
+            dimensions=["source_reliability"],
+            user_query="Need official source",
+            expected_answer="answer",
+            gold_doc_ids=["official-doc"],
+            metadata={"intended_split": "source-aware strategies should win"},
+        )
+        records = [
+            _record("cg_trust_split", "react", False, "source_reliability", unsupported=True),
+            _record("cg_trust_split", "plan_execute", True, "source_reliability"),
+        ]
+
+        markdown = "\n".join(build_case_cards(records, [case], run_path="reports/example.jsonl", max_cards=1))
+
+        self.assertIn("Source reliability is visible", markdown)
+
 
 def _record(
     case_id: str,

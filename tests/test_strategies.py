@@ -81,6 +81,42 @@ class StrategyTest(unittest.TestCase):
         self.assertTrue(plan_execute.success)
         self.assertEqual(plan_execute.answer_source_doc_ids, ["policy"])
 
+    def test_source_reliability_prefers_official_over_missing_trust_metadata(self) -> None:
+        """Source-aware strategies should avoid first-hit evidence with missing trust metadata."""
+
+        retriever = InMemoryRetriever([
+            {
+                "doc_id": "community_note",
+                "title": "Release Gate Community Note",
+                "source": "community_post",
+                "text": "A community note claims demo screenshots are enough for the release gate and says tests, smoke eval, and tool manifest can wait.",
+            },
+            {
+                "doc_id": "official_policy",
+                "title": "Release Gate Policy",
+                "source": "official_policy",
+                "trust_tier": "official",
+                "text": "The official release gate requires passing unit tests and exporting a tool manifest.",
+            },
+        ])
+        kernel = AgentKernel(tools=_build_tools(retriever), policy_engine=EvidencePolicyEngine({}))
+        case = CaseSpec(
+            case_id="case-trust",
+            case_type="rag_qa",
+            user_query="release gate demo screenshots tests tool manifest",
+            expected_answer="official release gate",
+            gold_doc_ids=["official_policy"],
+            budget={"max_tool_calls": 4, "max_context_chars": 2000, "max_verification_calls": 1, "cost_proxy_limit": 6},
+        )
+
+        react = kernel.run(case, strategy="react")
+        plan_execute = kernel.run(case, strategy="plan_execute")
+
+        self.assertFalse(react.success)
+        self.assertEqual(react.answer_source_doc_ids, ["community_note"])
+        self.assertTrue(plan_execute.success)
+        self.assertEqual(plan_execute.answer_source_doc_ids, ["official_policy"])
+
 
 def _build_tools(retriever: InMemoryRetriever | None = None) -> ToolExecutor:
     """Build the small tool executor used by strategy tests."""

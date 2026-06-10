@@ -15,6 +15,7 @@ CaseFamily = Literal[
     "adversarial_context",
     "verification_needed",
     "budget_pressure",
+    "source_reliability",
     "tool_selection",
     "sensitive_action",
     "coding_fixture",
@@ -24,6 +25,7 @@ StrategyDimension = Literal[
     "verification_timing",
     "budget_pressure",
     "adversarial_context",
+    "source_reliability",
     "tool_boundary",
 ]
 Decision = Literal["allow", "block", "review"]
