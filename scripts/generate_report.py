@@ -55,6 +55,7 @@ def build_report(records: list[dict[str, Any]], run_path: str, out_path: str) ->
         f"- Unsupported answer rate: {_pct(overall['unsupported_answer_rate'])}",
         f"- Missing verification rate: {_pct(overall['missing_verification_rate'])}",
         f"- Abstain rate: {_pct(overall['abstain_rate'])}",
+        f"- Wrong tool call rate: {_pct(overall['wrong_tool_call_rate'])}",
         f"- Budget violation rate: {_pct(overall['budget_violation_rate'])}",
         "",
     ]
@@ -82,8 +83,8 @@ def _summary_section(title: str, groups: dict[str, list[dict[str, Any]]]) -> lis
     lines = [
         f"## {title}",
         "",
-        "| group | runs | success_rate | unsupported_rate | missing_verification_rate | abstain_rate | budget_violation_rate | mean_tool_calls | mean_cost | mean_context |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| group | runs | success_rate | unsupported_rate | missing_verification_rate | abstain_rate | wrong_tool_call_rate | budget_violation_rate | mean_tool_calls | mean_cost | mean_context |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for group_name in sorted(groups):
         metrics = summarize(groups[group_name])
@@ -95,6 +96,7 @@ def _summary_section(title: str, groups: dict[str, list[dict[str, Any]]]) -> lis
             f"{_pct(metrics['unsupported_answer_rate'])} | "
             f"{_pct(metrics['missing_verification_rate'])} | "
             f"{_pct(metrics['abstain_rate'])} | "
+            f"{_pct(metrics['wrong_tool_call_rate'])} | "
             f"{_pct(metrics['budget_violation_rate'])} | "
             f"{metrics['mean_tool_calls']:.2f} | "
             f"{metrics['mean_cost_proxy']:.3f} | "
@@ -225,8 +227,8 @@ def _detail_section(records: list[dict[str, Any]]) -> list[str]:
     lines = [
         "## Run Detail",
         "",
-        "| case_id | family | strategy | success | sources | abstained | tools | cost | context | unsupported | missing_verification | budget_violation | grader_reason |",
-        "|---|---|---|---:|---|---:|---|---:|---:|---:|---:|---:|---|",
+        "| case_id | family | strategy | success | sources | abstained | tools | cost | context | unsupported | missing_verification | wrong_tool_call | budget_violation | grader_reason |",
+        "|---|---|---|---:|---|---:|---|---:|---:|---:|---:|---:|---:|---|",
     ]
     for record in sorted(records, key=lambda item: (item.get("case_id", ""), item.get("strategy", ""))):
         grader_result = record.get("grader_result") or {}
@@ -246,6 +248,7 @@ def _detail_section(records: list[dict[str, Any]]) -> list[str]:
             f"{int(record.get('context_chars_used') or 0)} | "
             f"{grader_result.get('unsupported_answer', False)} | "
             f"{grader_metrics.get('missing_verification', False)} | "
+            f"{grader_metrics.get('wrong_tool_call', False)} | "
             f"{grader_result.get('budget_violation', False)} | "
             f"{_escape(grader_result.get('reason', ''))} |"
         )
@@ -286,6 +289,8 @@ def _failure_mode(grader_result: dict[str, Any]) -> str:
         return "abstained"
     if grader_result.get("metrics", {}).get("missing_verification"):
         return "missing_verification"
+    if grader_result.get("metrics", {}).get("wrong_tool_call"):
+        return "wrong_tool_call"
     if grader_result.get("budget_violation"):
         return "budget_violation"
     if grader_result.get("unsupported_answer"):

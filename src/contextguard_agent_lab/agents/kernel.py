@@ -30,6 +30,29 @@ class AgentKernel:
         state.plan = strategy_impl.plan(state)
 
         if case.case_type == "sensitive_action" and case.sensitive_action:
+            if not strategy_impl.should_call_sensitive_tool(state.case, state):
+                decision = _skipped_sensitive_tool_decision(case)
+                state.policy_decisions.append(decision)
+                answer = f"{decision.decision}: {decision.reason}"
+                return self._finalize(
+                    case,
+                    RunRecord(
+                        case_id=case.case_id,
+                        strategy=strategy_impl.name,
+                        answer=answer,
+                        success=False,
+                        family=case.family,
+                        budget=case.budget,
+                        plan=list(state.plan),
+                        tool_calls=state.tool_calls,
+                        policy_decisions=state.policy_decisions,
+                        metrics={
+                            "policy_missing_count": len(decision.missing_evidence),
+                            "sensitive_tool_skipped": True,
+                            "tool_call_count": len(state.tool_calls),
+                        },
+                    ),
+                )
             result = self.tools.call(
                 case.sensitive_action,
                 {
@@ -186,4 +209,18 @@ def _can_retry_with_verification(case: CaseSpec, state: AgentState) -> bool:
     return (
         len(state.tool_calls) + 2 <= case.budget.max_tool_calls
         and verification_calls + 1 <= case.budget.max_verification_calls
+    )
+
+
+def _skipped_sensitive_tool_decision(case: CaseSpec) -> PolicyDecision:
+    """Record a strategy-level block without invoking the high-risk tool."""
+
+    return PolicyDecision(
+        case_id=case.case_id,
+        action=case.sensitive_action or "unknown",
+        decision="block",
+        required_evidence=[],
+        observed_evidence=sorted(set(case.observed_evidence)),
+        missing_evidence=[],
+        reason="strategy skipped high-risk tool call because evidence was incomplete",
     )

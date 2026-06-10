@@ -22,6 +22,7 @@ def summarize(records: list[RunRecord | dict[str, Any]]) -> dict[str, float]:
             "unsupported_answer_rate": 0.0,
             "missing_verification_rate": 0.0,
             "abstain_rate": 0.0,
+            "wrong_tool_call_rate": 0.0,
             "budget_violation_rate": 0.0,
             "unsafe_allow_rate": 0.0,
             "mean_citation_coverage": 0.0,
@@ -36,6 +37,7 @@ def summarize(records: list[RunRecord | dict[str, Any]]) -> dict[str, float]:
     unsupported = 0
     missing_verification = 0
     abstentions = 0
+    wrong_tool_calls = 0
     budget_violations = 0
     citation_coverage = 0.0
     latency_ms = 0.0
@@ -50,6 +52,8 @@ def summarize(records: list[RunRecord | dict[str, Any]]) -> dict[str, float]:
             missing_verification += 1
         if bool(record.get("abstained")) or grader_metrics.get("abstained"):
             abstentions += 1
+        if grader_metrics.get("wrong_tool_call"):
+            wrong_tool_calls += 1
         if grader_result.get("budget_violation"):
             budget_violations += 1
         citation_coverage += float(grader_result.get("citation_coverage") or 0.0)
@@ -69,6 +73,7 @@ def summarize(records: list[RunRecord | dict[str, Any]]) -> dict[str, float]:
         "unsupported_answer_rate": unsupported / case_count,
         "missing_verification_rate": missing_verification / case_count,
         "abstain_rate": abstentions / case_count,
+        "wrong_tool_call_rate": wrong_tool_calls / case_count,
         "budget_violation_rate": budget_violations / case_count,
         "unsafe_allow_rate": (unsafe_allows / sensitive_decisions) if sensitive_decisions else 0.0,
         "mean_citation_coverage": citation_coverage / case_count,

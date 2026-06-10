@@ -15,7 +15,7 @@ from contextguard_agent_lab.benchmark.loader import load_cases
 from contextguard_agent_lab.benchmark.schema import CaseSpec
 from contextguard_agent_lab.trace.jsonl import read_run_records
 
-PREFERRED_DIMENSIONS = ["retrieval_depth", "verification_timing", "budget_pressure", "adversarial_context"]
+PREFERRED_DIMENSIONS = ["retrieval_depth", "verification_timing", "budget_pressure", "adversarial_context", "tool_boundary"]
 STRATEGY_ORDER = ["react", "plan_execute", "verify_then_answer", "context_budget"]
 
 
@@ -26,7 +26,7 @@ def main() -> None:
     parser.add_argument("--run", default="reports/agent_strategy_ablation.jsonl")
     parser.add_argument("--cases", default="data/benchmark/cases.sample.jsonl")
     parser.add_argument("--out", default="reports/case_cards.md")
-    parser.add_argument("--max-cards", type=int, default=4)
+    parser.add_argument("--max-cards", type=int, default=5)
     args = parser.parse_args()
 
     records = read_run_records(REPO_ROOT / args.run)
@@ -88,6 +88,8 @@ def select_representative_cases(
             for case_id in sorted(split_case_ids)
             if case_id not in selected_ids and dimension in case_by_id[case_id].dimensions
         ]
+        if dimension == "tool_boundary":
+            candidates.sort(key=lambda case: (case.family != "tool_selection", case.case_id))
         if candidates:
             selected.append(candidates[0])
             selected_ids.add(candidates[0].case_id)
@@ -127,8 +129,8 @@ def _case_card(index: int, case: CaseSpec, rows: list[dict[str, Any]]) -> list[s
         f"- Winners: {_escape(', '.join(winners) or 'none')}",
         f"- Losers: {_escape(', '.join(losers) or 'none')}",
         "",
-        "| strategy | success | sources | abstained | tools | cost | context | unsupported | missing_verification | budget_violation | grader_reason |",
-        "|---|---:|---|---:|---|---:|---:|---:|---:|---:|---|",
+        "| strategy | success | sources | abstained | tools | cost | context | unsupported | missing_verification | wrong_tool_call | budget_violation | grader_reason |",
+        "|---|---:|---|---:|---|---:|---:|---:|---:|---:|---:|---|",
     ]
     for row in _sorted_rows(rows):
         grader_result = row.get("grader_result") or {}
@@ -145,6 +147,7 @@ def _case_card(index: int, case: CaseSpec, rows: list[dict[str, Any]]) -> list[s
             f"{int(row.get('context_chars_used') or 0)} | "
             f"{grader_result.get('unsupported_answer', False)} | "
             f"{grader_metrics.get('missing_verification', False)} | "
+            f"{grader_metrics.get('wrong_tool_call', False)} | "
             f"{grader_result.get('budget_violation', False)} | "
             f"{_escape(grader_result.get('reason', ''))} |"
         )
@@ -166,6 +169,8 @@ def _interpretation(case: CaseSpec, winners: list[str], losers: list[str]) -> st
         return "Budget pressure is visible because strategies differ on context and cost constraints under the same case budget."
     if "adversarial_context" in dimensions:
         return "Adversarial context behavior is visible because strategies face poisoned or distracting evidence under one shared grader."
+    if "tool_boundary" in dimensions:
+        return "Tool-boundary behavior is visible because strategies differ on whether they invoke a high-risk tool under incomplete evidence."
     if "retrieval_depth" in dimensions:
         return "Retrieval depth is visible because shallow search can miss required documents while deeper plans recover them."
     if winners and losers:

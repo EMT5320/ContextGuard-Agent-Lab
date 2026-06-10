@@ -28,6 +28,9 @@ class AgentStrategy(Protocol):
     def should_retry_after_verification(self, case: CaseView, state: AgentState) -> bool:
         """Decide whether failed verification should trigger one more retrieval."""
 
+    def should_call_sensitive_tool(self, case: CaseView, state: AgentState) -> bool:
+        """Decide whether to invoke a high-risk sensitive action tool."""
+
 
 class ReactStrategy:
     """Direct observe-act baseline with minimal planning."""
@@ -49,6 +52,9 @@ class ReactStrategy:
     def should_retry_after_verification(self, case: CaseView, state: AgentState) -> bool:
         return False
 
+    def should_call_sensitive_tool(self, case: CaseView, state: AgentState) -> bool:
+        return True
+
 
 class PlanExecuteStrategy:
     """Plan first, then retrieve enough evidence for multi-hop cases."""
@@ -69,6 +75,9 @@ class PlanExecuteStrategy:
 
     def should_retry_after_verification(self, case: CaseView, state: AgentState) -> bool:
         return False
+
+    def should_call_sensitive_tool(self, case: CaseView, state: AgentState) -> bool:
+        return True
 
 
 class VerifyThenAnswerStrategy:
@@ -93,6 +102,9 @@ class VerifyThenAnswerStrategy:
     def should_retry_after_verification(self, case: CaseView, state: AgentState) -> bool:
         return case.budget.max_tool_calls >= 4 and case.budget.max_verification_calls >= 2
 
+    def should_call_sensitive_tool(self, case: CaseView, state: AgentState) -> bool:
+        return _has_complete_export_evidence(case.observed_evidence)
+
 
 class ContextBudgetStrategy:
     """Spend as little context and verification budget as possible."""
@@ -115,6 +127,9 @@ class ContextBudgetStrategy:
 
     def should_retry_after_verification(self, case: CaseView, state: AgentState) -> bool:
         return False
+
+    def should_call_sensitive_tool(self, case: CaseView, state: AgentState) -> bool:
+        return _has_complete_export_evidence(case.observed_evidence)
 
 
 def _select_most_reliable_chunks(chunks: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -156,6 +171,13 @@ def _retrieval_score(chunk: dict[str, Any]) -> float:
         return float(chunk.get("retrieval_score", 1.0))
     except (TypeError, ValueError):
         return 1.0
+
+
+def _has_complete_export_evidence(observed_evidence: list[str]) -> bool:
+    """Heuristic gate for high-risk export tools using runtime evidence only."""
+
+    observed = {str(item) for item in observed_evidence}
+    return {"user_authorization", "data_scope", "policy_allowance"}.issubset(observed)
 
 
 def resolve_strategy(name: str) -> AgentStrategy:
