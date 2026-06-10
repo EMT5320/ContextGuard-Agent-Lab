@@ -42,6 +42,7 @@ class SchemaContractsTest(unittest.TestCase):
             user_query="question",
             expected_answer="answer",
             gold_doc_ids=["doc-1"],
+            retrieval_doc_ids=["doc-1", "distractor"],
             metadata={"intended_split": "hidden from strategies"},
         )
 
@@ -51,6 +52,7 @@ class SchemaContractsTest(unittest.TestCase):
         self.assertEqual(view.user_query, "question")
         self.assertFalse(hasattr(view, "gold_doc_ids"))
         self.assertFalse(hasattr(view, "expected_outcome"))
+        self.assertFalse(hasattr(view, "retrieval_doc_ids"))
         self.assertFalse(hasattr(view, "family"))
         self.assertFalse(hasattr(view, "metadata"))
 

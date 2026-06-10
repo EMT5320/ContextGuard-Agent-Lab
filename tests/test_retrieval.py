@@ -22,6 +22,19 @@ class RetrievalTest(unittest.TestCase):
         result = retriever.search_docs({"query": "MCP search", "top_k": 1})
         self.assertEqual(result["doc_ids"], ["a"])
 
+    def test_retriever_respects_allowed_doc_pool(self) -> None:
+        """Case-scoped doc pools should constrain retrieval candidates."""
+
+        retriever = InMemoryRetriever([
+            {"doc_id": "a", "title": "MCP", "text": "search and read tools"},
+            {"doc_id": "b", "title": "MCP", "text": "manifest schema"},
+            {"doc_id": "c", "title": "MCP", "text": "unwanted distractor"},
+        ])
+        result = retriever.search_docs({"query": "MCP", "top_k": 3, "allowed_doc_ids": ["b"]})
+
+        self.assertEqual(result["doc_ids"], ["b"])
+        self.assertEqual(result["candidate_doc_count"], 1)
+
     def test_verifier_uses_answer_sources_without_gold_labels(self) -> None:
         """Support checks should use retrieved chunks and source metadata only."""
 

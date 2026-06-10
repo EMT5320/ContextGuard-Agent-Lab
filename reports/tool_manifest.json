@@ -10,6 +10,9 @@
         },
         "top_k": {
           "type": "integer"
+        },
+        "allowed_doc_ids": {
+          "type": "array"
         }
       },
       "required": [
@@ -27,6 +30,9 @@
         },
         "answer_hint": {
           "type": "string"
+        },
+        "candidate_doc_count": {
+          "type": "integer"
         }
       }
     },

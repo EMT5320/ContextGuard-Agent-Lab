@@ -30,8 +30,10 @@ class InMemoryRetriever:
         query = str(arguments.get("query", ""))
         query_tokens = _content_tokens(query)
         top_k = int(arguments.get("top_k", 3))
+        allowed_doc_ids = {str(doc_id) for doc_id in arguments.get("allowed_doc_ids", [])}
+        candidate_docs = [doc for doc in self.docs if not allowed_doc_ids or str(doc.get("doc_id")) in allowed_doc_ids]
         scored: list[tuple[int, int, dict[str, Any], set[str]]] = []
-        for index, doc in enumerate(self.docs):
+        for index, doc in enumerate(candidate_docs):
             text = (doc.get("title", "") + " " + doc.get("text", "")).lower()
             text_tokens = _content_tokens(text)
             matched_tokens = query_tokens.intersection(text_tokens)
@@ -42,12 +44,13 @@ class InMemoryRetriever:
             for score, _index, doc, matched_tokens in scored[:top_k]
             if score > 0
         ]
-        if not selected and self.docs:
-            selected = [{**self.docs[0], "retrieval_score": 0, "matched_query_tokens": []}]
+        if not selected and candidate_docs:
+            selected = [{**candidate_docs[0], "retrieval_score": 0, "matched_query_tokens": []}]
         return {
             "doc_ids": [doc["doc_id"] for doc in selected],
             "chunks": selected,
             "answer_hint": selected[0].get("text", "") if selected else "",
+            "candidate_doc_count": len(candidate_docs),
         }
 
 

@@ -85,7 +85,7 @@ class AgentKernel:
 
         if case.case_type == "rag_qa":
             top_k = strategy_impl.retrieval_top_k(state.case, state)
-            result = self.tools.call("search_docs", {"query": case.user_query, "top_k": top_k})
+            result = self.tools.call("search_docs", _search_arguments(case, top_k))
             state.tool_calls.append(result.trace(case.case_id, step_index=1))
             chunks = _payload_chunks(result.payload)
             answer_chunks = strategy_impl.select_answer_chunks(chunks, state)
@@ -97,7 +97,7 @@ class AgentKernel:
                 state.tool_calls.append(verification.trace(case.case_id, step_index=2))
                 if not verification.payload.get("supported"):
                     if strategy_impl.should_retry_after_verification(state.case, state) and _can_retry_with_verification(case, state):
-                        retry = self.tools.call("search_docs", {"query": case.user_query, "top_k": top_k + 1})
+                        retry = self.tools.call("search_docs", _search_arguments(case, top_k + 1))
                         state.tool_calls.append(retry.trace(case.case_id, step_index=3))
                         chunks = _payload_chunks(retry.payload)
                         answer_chunks = strategy_impl.select_answer_chunks(chunks, state)
@@ -180,6 +180,15 @@ def _payload_chunks(payload: dict) -> list[dict]:
     """Return structured retrieval chunks from a tool payload."""
 
     return [chunk for chunk in payload.get("chunks", []) if isinstance(chunk, dict)]
+
+
+def _search_arguments(case: CaseSpec, top_k: int) -> dict:
+    """Build retrieval arguments with optional runtime doc-pool scoping."""
+
+    arguments = {"query": case.user_query, "top_k": top_k}
+    if case.retrieval_doc_ids:
+        arguments["allowed_doc_ids"] = list(case.retrieval_doc_ids)
+    return arguments
 
 
 def _compose_answer(chunks: list[dict]) -> str:

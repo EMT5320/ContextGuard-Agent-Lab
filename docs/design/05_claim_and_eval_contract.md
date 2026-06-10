@@ -25,6 +25,7 @@ MVP public claims are limited to strategy benchmark, MCP-compatible in-process t
 | `metadata.intended_split` | 可读 | 禁止 | 禁止 | 可读 |
 | `family` / dimensions | 可读 | 禁止 | 禁止 | 可读 |
 | `user_query` / `budget` | 可读 | 可读 | 按工具输入可读 | 可读 |
+| `retrieval_doc_ids` per-case corpus pool | 可读 | 禁止 | 按工具输入可读 | 可读 |
 | runtime provenance such as `source` / `trust_tier` | 可读 | 可读 | 可读 | 可读 |
 | retrieved chunks / answer source ids | 可读 | 可读 | 可读 | 可读 |
 

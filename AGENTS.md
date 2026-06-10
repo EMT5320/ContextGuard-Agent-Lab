@@ -27,6 +27,7 @@ ContextGuard Agent Lab 是一个 MCP-compatible、strategy-evaluation-first 的 
 - Grader 和报告可以读取 `gold_doc_ids`、`expected_outcome`、`grader`、`metadata.intended_split`、`family` 和 dimensions。
 - `AgentStrategy` 只能接收去敏的 `CaseView`，不得读取 gold label、expected outcome、intended split 或 case-family 评测标签。
 - 工具实现不得接收 `expected_doc_ids` 等 gold label；verification 工具只能根据 answer、retrieved chunks、answer source ids 和运行时 provenance 判断 grounding / source support。
+- `retrieval_doc_ids` 是每个 case 的运行时语料候选池，可以由 kernel 传给 retrieval 工具，但不得暴露给 `AgentStrategy`。
 - `budget`、`user_query`、retrieved chunks、`source` / `trust_tier` 等运行时可见元数据可以被策略和工具使用。
 - 如果新增策略或工具需要更多字段，先判断该字段是运行时环境信息还是评测真值；不确定时先写入设计文档再实现。
 

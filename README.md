@@ -90,6 +90,7 @@ Phase 1 is in progress. Implemented so far:
 - `AgentStrategy` protocol and four deterministic MVP strategy skeletons using label-free `CaseView`.
 - Independent starter graders for retrieval QA, sensitive-action smoke cases, and unimplemented coding fixtures.
 - Answer-source tracing, abstention tracing, and gold-free verification over retrieved chunks and runtime provenance.
+- Per-case retrieval doc pools for stable seed-case retrieval as the toy corpus grows.
 - 10 public starter cases covering retrieval depth, verification timing, budget pressure, adversarial context, simulated `export_data` tool-boundary paths, and a clearly marked coding stub.
 - Multi-strategy CLI smoke and seed-suite report workflow.
 

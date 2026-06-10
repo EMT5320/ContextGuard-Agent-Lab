@@ -97,6 +97,7 @@ class CaseSpec:
     user_query: str
     expected_answer: str
     gold_doc_ids: list[str] = field(default_factory=list)
+    retrieval_doc_ids: list[str] = field(default_factory=list)
     required_evidence: list[str] = field(default_factory=list)
     observed_evidence: list[str] = field(default_factory=list)
     sensitive_action: str | None = None

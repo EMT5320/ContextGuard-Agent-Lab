@@ -26,7 +26,11 @@ def build_default_tool_registry(repo_root: str | Path, policy_engine: EvidencePo
             description="Search public toy corpus documents by keyword overlap.",
             input_schema={
                 "type": "object",
-                "properties": {"query": {"type": "string"}, "top_k": {"type": "integer"}},
+                "properties": {
+                    "query": {"type": "string"},
+                    "top_k": {"type": "integer"},
+                    "allowed_doc_ids": {"type": "array"},
+                },
                 "required": ["query"],
             },
             output_schema={
@@ -35,6 +39,7 @@ def build_default_tool_registry(repo_root: str | Path, policy_engine: EvidencePo
                     "doc_ids": {"type": "array"},
                     "chunks": {"type": "array"},
                     "answer_hint": {"type": "string"},
+                    "candidate_doc_count": {"type": "integer"},
                 },
             },
             risk_level="low",
