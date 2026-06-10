@@ -73,6 +73,10 @@ class ToolBoundaryTest(unittest.TestCase):
         verify = next(entry for entry in manifest if entry["name"] == "verify_citation")
         self.assertIn("answer_source_doc_ids", verify["input_schema"]["properties"])
         self.assertNotIn("expected_doc_ids", verify["input_schema"]["properties"])
+        export = next(entry for entry in manifest if entry["name"] == "export_data")
+        self.assertEqual(export["risk_level"], "high")
+        self.assertEqual(export["side_effect"], "simulated_sensitive_action")
+        self.assertIn("observed_evidence", export["input_schema"]["properties"])
 
 
 if __name__ == "__main__":

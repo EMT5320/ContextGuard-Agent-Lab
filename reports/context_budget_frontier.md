@@ -16,10 +16,10 @@
 
 | strategy | success_rate | mean_cost | mean_context | budget_violation_rate | frontier_note |
 |---|---:|---:|---:|---:|---|
-| react | 50.0% | 1.014 | 264.5 | 0.0% | on current seed frontier |
-| plan_execute | 75.0% | 1.201 | 450.8 | 12.5% | on current seed frontier |
-| context_budget | 87.5% | 1.870 | 370.0 | 0.0% | on current seed frontier |
-| verify_then_answer | 87.5% | 2.310 | 435.2 | 12.5% | dominated in this seed run |
+| react | 50.0% | 1.182 | 307.0 | 0.0% | on current seed frontier |
+| plan_execute | 75.0% | 1.368 | 493.2 | 12.5% | on current seed frontier |
+| context_budget | 87.5% | 2.038 | 412.5 | 0.0% | on current seed frontier |
+| verify_then_answer | 87.5% | 2.478 | 477.8 | 12.5% | dominated in this seed run |
 
 ## Pareto Notes
 

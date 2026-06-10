@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from contextguard_agent_lab.agents.state import AgentState
 from contextguard_agent_lab.agents.strategies import resolve_strategy
-from contextguard_agent_lab.benchmark.schema import CaseSpec, RunRecord
+from contextguard_agent_lab.benchmark.schema import CaseSpec, PolicyDecision, RunRecord
 from contextguard_agent_lab.eval.graders import grade_run
 from contextguard_agent_lab.guardrails.policy import EvidencePolicyEngine
 from contextguard_agent_lab.tools.registry import ToolExecutor
@@ -30,11 +30,16 @@ class AgentKernel:
         state.plan = strategy_impl.plan(state)
 
         if case.case_type == "sensitive_action" and case.sensitive_action:
-            decision = self.policy_engine.decide(
-                case_id=case.case_id,
-                action=case.sensitive_action,
-                observed_evidence=case.observed_evidence,
+            result = self.tools.call(
+                case.sensitive_action,
+                {
+                    "case_id": case.case_id,
+                    "action": case.sensitive_action,
+                    "observed_evidence": case.observed_evidence,
+                },
             )
+            state.tool_calls.append(result.trace(case.case_id, step_index=1))
+            decision = PolicyDecision(**result.payload["policy_decision"])
             state.policy_decisions.append(decision)
             answer = f"{decision.decision}: {decision.reason}"
             return self._finalize(
@@ -49,7 +54,9 @@ class AgentKernel:
                     plan=list(state.plan),
                     tool_calls=state.tool_calls,
                     policy_decisions=state.policy_decisions,
-                    metrics={"policy_missing_count": len(decision.missing_evidence)},
+                    metrics={"policy_missing_count": len(decision.missing_evidence), "tool_call_count": len(state.tool_calls)},
+                    cost_proxy=sum(call.cost_proxy for call in state.tool_calls),
+                    context_chars_used=sum(call.context_chars for call in state.tool_calls),
                 ),
             )
 

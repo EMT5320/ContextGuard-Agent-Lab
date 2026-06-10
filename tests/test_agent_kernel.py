@@ -9,7 +9,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from contextguard_agent_lab.agents.kernel import AgentKernel
 from contextguard_agent_lab.benchmark.schema import CaseSpec
 from contextguard_agent_lab.guardrails.policy import EvidencePolicyEngine
-from contextguard_agent_lab.tools.registry import ToolExecutor, ToolRegistry
+from contextguard_agent_lab.tools.factory import build_default_tool_executor
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 class AgentKernelTest(unittest.TestCase):
@@ -18,9 +21,8 @@ class AgentKernelTest(unittest.TestCase):
     def test_kernel_blocks_sensitive_action(self) -> None:
         """Guarded agent should block sensitive action with missing evidence."""
 
-        tools = ToolRegistry()
         policy = EvidencePolicyEngine({"export_data": ["user_authorization", "data_scope"]})
-        kernel = AgentKernel(tools=ToolExecutor(tools), policy_engine=policy)
+        kernel = AgentKernel(tools=build_default_tool_executor(REPO_ROOT, policy_engine=policy), policy_engine=policy)
         case = CaseSpec(
             case_id="case-sensitive",
             case_type="sensitive_action",
@@ -32,6 +34,8 @@ class AgentKernelTest(unittest.TestCase):
         record = kernel.run(case)
         self.assertTrue(record.success)
         self.assertIsNotNone(record.grader_result)
+        self.assertEqual([call.tool_name for call in record.tool_calls], ["export_data"])
+        self.assertEqual(record.tool_calls[0].risk_level, "high")
         self.assertEqual(record.policy_decisions[0].decision, "block")
 
 

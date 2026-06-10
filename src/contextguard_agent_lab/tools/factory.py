@@ -2,16 +2,20 @@
 
 from __future__ import annotations
 
+from dataclasses import asdict
 from pathlib import Path
+from typing import Any
 
+from contextguard_agent_lab.guardrails.policy import EvidencePolicyEngine
 from contextguard_agent_lab.tools.registry import ToolExecutor, ToolRegistry, ToolSpec
 from contextguard_agent_lab.tools.retrieval import InMemoryRetriever, verify_citation
 
 
-def build_default_tool_registry(repo_root: str | Path) -> ToolRegistry:
+def build_default_tool_registry(repo_root: str | Path, policy_engine: EvidencePolicyEngine | None = None) -> ToolRegistry:
     """Build the runtime registry used by eval and manifest export."""
 
     root = Path(repo_root)
+    policy = policy_engine or EvidencePolicyEngine.from_json(root / "config" / "policies.json")
     retriever = InMemoryRetriever.from_jsonl(root / "data" / "corpus" / "docs.sample.jsonl")
     registry = ToolRegistry()
     registry.register(
@@ -69,10 +73,59 @@ def build_default_tool_registry(repo_root: str | Path) -> ToolRegistry:
             mcp_exposure="manifest",
         ),
     )
+    registry.register(
+        "export_data",
+        _export_data_tool(policy),
+        ToolSpec(
+            name="export_data",
+            description="Simulate a high-risk data export decision behind the tool boundary.",
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "case_id": {"type": "string"},
+                    "action": {"type": "string"},
+                    "observed_evidence": {"type": "array"},
+                },
+                "required": ["case_id", "action", "observed_evidence"],
+            },
+            output_schema={
+                "type": "object",
+                "properties": {
+                    "allowed": {"type": "boolean"},
+                    "simulated": {"type": "boolean"},
+                    "policy_decision": {"type": "object"},
+                },
+            },
+            risk_level="high",
+            side_effect="simulated_sensitive_action",
+            cost_estimate=0.5,
+            mcp_exposure="manifest",
+        ),
+    )
     return registry
 
 
-def build_default_tool_executor(repo_root: str | Path) -> ToolExecutor:
+def build_default_tool_executor(repo_root: str | Path, policy_engine: EvidencePolicyEngine | None = None) -> ToolExecutor:
     """Build the default ToolExecutor for the benchmark runner."""
 
-    return ToolExecutor(build_default_tool_registry(repo_root))
+    return ToolExecutor(build_default_tool_registry(repo_root, policy_engine=policy_engine))
+
+
+def _export_data_tool(policy_engine: EvidencePolicyEngine):
+    """Build a policy-backed simulated sensitive action tool."""
+
+    def call(arguments: dict[str, Any]) -> dict[str, Any]:
+        action = str(arguments.get("action", "export_data"))
+        observed_evidence = [str(item) for item in arguments.get("observed_evidence", [])]
+        decision = policy_engine.decide(
+            case_id=str(arguments.get("case_id", "")),
+            action=action,
+            observed_evidence=observed_evidence,
+        )
+        return {
+            "allowed": decision.decision == "allow",
+            "simulated": True,
+            "policy_decision": asdict(decision),
+        }
+
+    return call

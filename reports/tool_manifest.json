@@ -78,5 +78,46 @@
     "side_effect": "none",
     "cost_estimate": 1.5,
     "mcp_exposure": "manifest"
+  },
+  {
+    "name": "export_data",
+    "description": "Simulate a high-risk data export decision behind the tool boundary.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "case_id": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "observed_evidence": {
+          "type": "array"
+        }
+      },
+      "required": [
+        "case_id",
+        "action",
+        "observed_evidence"
+      ]
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "allowed": {
+          "type": "boolean"
+        },
+        "simulated": {
+          "type": "boolean"
+        },
+        "policy_decision": {
+          "type": "object"
+        }
+      }
+    },
+    "risk_level": "high",
+    "side_effect": "simulated_sensitive_action",
+    "cost_estimate": 0.5,
+    "mcp_exposure": "manifest"
   }
 ]

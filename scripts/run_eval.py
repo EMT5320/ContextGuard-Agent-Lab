@@ -25,7 +25,7 @@ def build_kernel(repo_root: Path) -> AgentKernel:
     """Build the deterministic starter kernel."""
 
     policy = EvidencePolicyEngine.from_json(repo_root / "config" / "policies.json")
-    return AgentKernel(tools=build_default_tool_executor(repo_root), policy_engine=policy)
+    return AgentKernel(tools=build_default_tool_executor(repo_root, policy_engine=policy), policy_engine=policy)
 
 
 def main() -> None:
