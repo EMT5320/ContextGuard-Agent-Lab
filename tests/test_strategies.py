@@ -111,11 +111,60 @@ class StrategyTest(unittest.TestCase):
 
         react = kernel.run(case, strategy="react")
         plan_execute = kernel.run(case, strategy="plan_execute")
+        context_budget = kernel.run(case, strategy="context_budget")
 
         self.assertFalse(react.success)
         self.assertEqual(react.answer_source_doc_ids, ["community_note"])
         self.assertTrue(plan_execute.success)
         self.assertEqual(plan_execute.answer_source_doc_ids, ["official_policy"])
+        self.assertTrue(context_budget.success)
+        self.assertEqual(context_budget.answer_source_doc_ids, ["official_policy"])
+        self.assertTrue(
+            any(
+                reason["doc_id"] == "community_note" and reason["skipped_reason"] == "lower_source_reliability"
+                for reason in context_budget.metrics["selection_reasons"]
+            )
+        )
+
+    def test_context_budget_skips_low_relevance_same_trust_extra(self) -> None:
+        """Value selection should not add same-trust chunks with weak query relevance."""
+
+        retriever = InMemoryRetriever([
+            {
+                "doc_id": "citation_contract",
+                "title": "Citation Verification Contract",
+                "source": "project_docs",
+                "trust_tier": "trusted",
+                "text": "Verification-needed answers should call verify_citation before final acceptance.",
+            },
+            {
+                "doc_id": "budget_governance",
+                "title": "Budget Governance",
+                "source": "project_docs",
+                "trust_tier": "trusted",
+                "text": "Answers budget governance records cost proxy and context characters for each strategy run.",
+            },
+        ])
+        kernel = AgentKernel(tools=_build_tools(retriever), policy_engine=EvidencePolicyEngine({}))
+        case = CaseSpec(
+            case_id="case-low-relevance",
+            case_type="rag_qa",
+            user_query="What must happen before verification-needed answers are accepted?",
+            expected_answer="verify_citation before final acceptance",
+            gold_doc_ids=["citation_contract"],
+            budget={"max_tool_calls": 4, "max_context_chars": 2000, "max_verification_calls": 1, "cost_proxy_limit": 6},
+        )
+
+        context_budget = kernel.run(case, strategy="context_budget")
+
+        self.assertTrue(context_budget.success)
+        self.assertEqual(context_budget.answer_source_doc_ids, ["citation_contract"])
+        self.assertTrue(
+            any(
+                reason["doc_id"] == "budget_governance" and reason["skipped_reason"] == "low_query_relevance"
+                for reason in context_budget.metrics["selection_reasons"]
+            )
+        )
 
 
 def _build_tools(retriever: InMemoryRetriever | None = None) -> ToolExecutor:

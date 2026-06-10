@@ -34,14 +34,22 @@
 - Current value: the budget strategy can preserve success where another strategy fails under cost or evidence constraints.
 - Current limitation: the budget strategy can still miss evidence when its conservative retrieval choice is too shallow.
 
-## Next Policy Upgrade
+## Selection Trace Samples
 
-The next algorithm-signal milestone is an explicit Value-of-Information policy:
+- `cg_trust_001` selected `release_gate_policy`; skipped `release_gate_blog` (lower_source_reliability).
+- `cg_verify_001` selected `citation_contract`; skipped `budget_governance` (low_query_relevance).
+- `cg_adv_001` selected `poison_override`; skipped none.
+- `cg_budget_001` selected `reviewer_quickstart`; skipped none.
+- `cg_rag_001` selected `mcp_intro`; skipped none.
+
+## Value Heuristic
+
+The current `context_budget` skeleton records a label-free greedy value signal:
 
 ```text
 chunk_value = query_relevance * source_reliability * novelty
-chunk_cost = estimated_context_chars + tool_cost
+chunk_cost = estimated_context_chars
 selection_score = chunk_value / max(chunk_cost, 1)
 ```
 
-This frontier report should remain the comparison surface after the policy upgrade.
+Selection reasons are emitted under `record.metrics.selection_reasons`; the next upgrade is to tune this heuristic against larger case coverage.

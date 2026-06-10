@@ -87,17 +87,23 @@ def build_frontier_report(records: list[dict[str, Any]], run_path: str) -> list[
     lines.extend(_context_budget_focus(core_records))
     lines.extend([
         "",
-        "## Next Policy Upgrade",
+        "## Selection Trace Samples",
         "",
-        "The next algorithm-signal milestone is an explicit Value-of-Information policy:",
+    ])
+    lines.extend(_selection_trace_samples(core_records))
+    lines.extend([
+        "",
+        "## Value Heuristic",
+        "",
+        "The current `context_budget` skeleton records a label-free greedy value signal:",
         "",
         "```text",
         "chunk_value = query_relevance * source_reliability * novelty",
-        "chunk_cost = estimated_context_chars + tool_cost",
+        "chunk_cost = estimated_context_chars",
         "selection_score = chunk_value / max(chunk_cost, 1)",
         "```",
         "",
-        "This frontier report should remain the comparison surface after the policy upgrade.",
+        "Selection reasons are emitted under `record.metrics.selection_reasons`; the next upgrade is to tune this heuristic against larger case coverage.",
         "",
     ])
     return lines
@@ -178,12 +184,61 @@ def _context_budget_focus(records: list[dict[str, Any]]) -> list[str]:
     return lines
 
 
+def _selection_trace_samples(records: list[dict[str, Any]], limit: int = 5) -> list[str]:
+    """Render compact context-budget chunk selection diagnostics."""
+
+    rows = [
+        record
+        for record in records
+        if record.get("strategy") == "context_budget" and (record.get("metrics") or {}).get("selection_reasons")
+    ]
+    if not rows:
+        return ["- No context-budget selection reasons were emitted in this run."]
+
+    lines: list[str] = []
+    for row in sorted(rows, key=lambda item: (not _has_skipped_selection(item), str(item.get("case_id", ""))))[:limit]:
+        reasons = (row.get("metrics") or {}).get("selection_reasons") or []
+        selected = [str(reason.get("doc_id")) for reason in reasons if reason.get("selected")]
+        skipped = [
+            f"`{_escape(reason.get('doc_id'))}` ({_escape(reason.get('skipped_reason'))})"
+            for reason in reasons
+            if not reason.get("selected")
+        ]
+        lines.append(
+            f"- `{_escape(row.get('case_id'))}` selected {_format_doc_list(selected)}; skipped {_format_inline_list(skipped)}."
+        )
+    return lines
+
+
+def _has_skipped_selection(record: dict[str, Any]) -> bool:
+    """Return true when a context-budget row skipped at least one chunk."""
+
+    reasons = (record.get("metrics") or {}).get("selection_reasons") or []
+    return any(not reason.get("selected") for reason in reasons)
+
+
 def _format_case_list(case_ids: list[str]) -> str:
     """Format case ids for a Markdown bullet."""
 
     if not case_ids:
         return "none"
     return ", ".join(f"`{case_id}`" for case_id in case_ids)
+
+
+def _format_doc_list(doc_ids: list[str]) -> str:
+    """Format document ids for inline Markdown."""
+
+    if not doc_ids:
+        return "none"
+    return ", ".join(f"`{_escape(doc_id)}`" for doc_id in doc_ids)
+
+
+def _format_inline_list(items: list[str]) -> str:
+    """Format pre-rendered inline Markdown fragments."""
+
+    if not items:
+        return "none"
+    return ", ".join(items)
 
 
 def _group_by(records: list[dict[str, Any]], key: str) -> dict[str, list[dict[str, Any]]]:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any, Protocol
 
 from contextguard_agent_lab.agents.state import AgentState
@@ -112,7 +113,7 @@ class ContextBudgetStrategy:
     name = "context_budget"
 
     def plan(self, state: AgentState) -> list[str]:
-        return ["estimate evidence value", "retrieve within budget", "skip low-value verification"]
+        return ["estimate chunk value", "retrieve within budget", "select high-value evidence", "verify when budget allows"]
 
     def retrieval_top_k(self, case: CaseView, state: AgentState) -> int:
         if case.budget.max_context_chars < 1600 or case.budget.cost_proxy_limit < 6:
@@ -120,7 +121,7 @@ class ContextBudgetStrategy:
         return 2
 
     def select_answer_chunks(self, chunks: list[dict[str, Any]], state: AgentState) -> list[dict[str, Any]]:
-        return _select_most_reliable_chunks(chunks)
+        return _select_value_budget_chunks(chunks, state)
 
     def should_verify_answer(self, case: CaseView, state: AgentState) -> bool:
         return case.budget.cost_proxy_limit >= 6 and case.budget.max_verification_calls > 0
@@ -147,6 +148,91 @@ def _select_most_reliable_chunks(chunks: list[dict[str, Any]]) -> list[dict[str,
     return selected or trusted_candidates[:1]
 
 
+def _select_value_budget_chunks(chunks: list[dict[str, Any]], state: AgentState) -> list[dict[str, Any]]:
+    """Greedily select high-value chunks and record label-free selection reasons."""
+
+    if not chunks:
+        state.scratchpad["selection_reasons"] = []
+        return []
+
+    best_reliability = max(_source_reliability(chunk) for chunk in chunks)
+    best_query_relevance = max(
+        _chunk_value_metrics(chunk, state, set())["query_relevance"]
+        for chunk in chunks
+        if _source_reliability(chunk) == best_reliability
+    )
+    relevance_threshold = max(0.1, best_query_relevance * 0.6) if best_query_relevance > 0 else 0.0
+    budget_chars = max(int(state.case.budget.max_context_chars), 0)
+    selected: list[dict[str, Any]] = []
+    used_tokens: set[str] = set()
+    used_chars = 0
+    reasons: list[dict[str, Any]] = []
+    remaining = list(enumerate(chunks))
+
+    while remaining:
+        scored = [
+            (original_index, chunk, _chunk_value_metrics(chunk, state, used_tokens))
+            for original_index, chunk in remaining
+        ]
+        original_index, chunk, metrics = max(
+            scored,
+            key=lambda item: (
+                item[2]["selection_score"],
+                item[2]["source_reliability"],
+                item[2]["query_relevance"],
+                -item[0],
+            ),
+        )
+        remaining = [(index, item) for index, item in remaining if index != original_index]
+
+        skipped_reason = ""
+        selected_chunk = False
+        if metrics["source_reliability"] < best_reliability:
+            skipped_reason = "lower_source_reliability"
+        elif metrics["query_relevance"] < relevance_threshold:
+            skipped_reason = "low_query_relevance"
+        elif selected and used_chars + metrics["estimated_context_chars"] > budget_chars:
+            skipped_reason = "context_budget_exceeded"
+        else:
+            selected_chunk = True
+            selected.append(chunk)
+            used_chars += metrics["estimated_context_chars"]
+            used_tokens.update(_chunk_tokens(chunk))
+
+        reasons.append({
+            "doc_id": str(chunk.get("doc_id", "")),
+            "selected": selected_chunk,
+            "query_relevance": _round_metric(metrics["query_relevance"]),
+            "source_reliability": _round_metric(metrics["source_reliability"]),
+            "novelty": _round_metric(metrics["novelty"]),
+            "estimated_context_chars": metrics["estimated_context_chars"],
+            "selection_score": round(metrics["selection_score"], 6),
+            "skipped_reason": skipped_reason,
+        })
+
+    state.scratchpad["selection_reasons"] = reasons
+    return selected
+
+
+def _chunk_value_metrics(chunk: dict[str, Any], state: AgentState, used_tokens: set[str]) -> dict[str, float | int]:
+    """Compute label-free value metrics for one retrieved chunk."""
+
+    query_tokens = _text_tokens(state.case.user_query)
+    chunk_tokens = _chunk_tokens(chunk)
+    query_relevance = (len(query_tokens.intersection(chunk_tokens)) / len(query_tokens)) if query_tokens else 0.0
+    source_reliability = _source_reliability(chunk)
+    novelty = (len(chunk_tokens.difference(used_tokens)) / len(chunk_tokens)) if chunk_tokens else 0.0
+    estimated_context_chars = max(len(str(chunk.get("text", ""))), 1)
+    chunk_value = query_relevance * source_reliability * novelty
+    return {
+        "query_relevance": query_relevance,
+        "source_reliability": source_reliability,
+        "novelty": novelty,
+        "estimated_context_chars": estimated_context_chars,
+        "selection_score": chunk_value / max(estimated_context_chars, 1),
+    }
+
+
 def _source_reliability(chunk: dict[str, Any]) -> float:
     """Score runtime provenance metadata without consulting gold labels."""
 
@@ -171,6 +257,25 @@ def _retrieval_score(chunk: dict[str, Any]) -> float:
         return float(chunk.get("retrieval_score", 1.0))
     except (TypeError, ValueError):
         return 1.0
+
+
+def _chunk_tokens(chunk: dict[str, Any]) -> set[str]:
+    """Tokenize chunk text and title for novelty estimation."""
+
+    return _text_tokens(str(chunk.get("title", "")) + " " + str(chunk.get("text", "")))
+
+
+def _text_tokens(value: str) -> set[str]:
+    """Tokenize text for deterministic value scoring."""
+
+    stop_words = {"a", "an", "and", "are", "by", "for", "in", "is", "of", "or", "the", "to", "with"}
+    return {token for token in re.findall(r"[a-z0-9_]+", value.lower()) if token not in stop_words}
+
+
+def _round_metric(value: float | int) -> float:
+    """Round trace metrics without hiding ordering-relevant precision in code."""
+
+    return round(float(value), 3)
 
 
 def _has_complete_export_evidence(observed_evidence: list[str]) -> bool:

@@ -59,7 +59,7 @@
 | cg_rag_002 | retrieval_qa | plan_execute | True | budget_governance, trace_schema | False | search_docs | 1.567 | 567 | False | False | False | False | answer sources match required evidence |
 | cg_rag_002 | retrieval_qa | react | False | budget_governance | False | search_docs | 1.353 | 353 | True | False | False | False | answer source did not match required evidence |
 | cg_rag_002 | retrieval_qa | verify_then_answer | True | budget_governance, trace_schema | False | search_docs -> verify_citation | 3.117 | 617 | False | False | False | False | answer sources match required evidence |
-| cg_rag_003 | retrieval_qa | context_budget | True | mcp_intro, tool_manifest_contract | False | search_docs -> verify_citation | 3.154 | 654 | False | False | False | False | answer sources match required evidence |
+| cg_rag_003 | retrieval_qa | context_budget | True | tool_manifest_contract, mcp_intro | False | search_docs -> verify_citation | 3.154 | 654 | False | False | False | False | answer sources match required evidence |
 | cg_rag_003 | retrieval_qa | plan_execute | True | mcp_intro, tool_manifest_contract | False | search_docs | 1.602 | 602 | False | False | False | False | answer sources match required evidence |
 | cg_rag_003 | retrieval_qa | react | False | mcp_intro | False | search_docs | 1.358 | 358 | True | False | False | False | answer source did not match required evidence |
 | cg_rag_003 | retrieval_qa | verify_then_answer | True | mcp_intro, tool_manifest_contract | False | search_docs -> verify_citation | 3.154 | 654 | False | False | False | False | answer sources match required evidence |

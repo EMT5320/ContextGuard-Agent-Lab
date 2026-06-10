@@ -91,6 +91,7 @@ Phase 1 is in progress. Implemented so far:
 - Independent starter graders for retrieval QA, sensitive-action smoke cases, and unimplemented coding fixtures.
 - Answer-source tracing, abstention tracing, and gold-free verification over retrieved chunks and runtime provenance.
 - Per-case retrieval doc pools for stable seed-case retrieval as the toy corpus grows.
+- Context-budget selection reasons using query relevance, source reliability, novelty, and estimated context cost.
 - 11 public starter cases covering retrieval depth, verification timing, budget pressure, adversarial context, source reliability, simulated `export_data` tool-boundary paths, and a clearly marked coding stub.
 - Multi-strategy CLI smoke and seed-suite report workflow.
 

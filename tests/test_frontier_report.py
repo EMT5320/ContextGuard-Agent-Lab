@@ -33,7 +33,17 @@ class FrontierReportTest(unittest.TestCase):
 
         records = [
             _record("case-1", "react", False, 1.0, 100),
-            _record("case-1", "context_budget", True, 1.1, 90),
+            _record(
+                "case-1",
+                "context_budget",
+                True,
+                1.1,
+                90,
+                selection_reasons=[
+                    {"doc_id": "doc-good", "selected": True, "skipped_reason": ""},
+                    {"doc_id": "doc-noisy", "selected": False, "skipped_reason": "lower_source_reliability"},
+                ],
+            ),
             _record("case-1", "verify_then_answer", True, 2.0, 120),
             _record("case-2", "react", True, 0.8, 80),
             _record("case-2", "context_budget", False, 0.7, 60, unsupported=True),
@@ -48,6 +58,8 @@ class FrontierReportTest(unittest.TestCase):
         self.assertIn("context_budget", markdown)
         self.assertIn("Success-Cost Table", markdown)
         self.assertIn("Context Budget Focus", markdown)
+        self.assertIn("Selection Trace Samples", markdown)
+        self.assertIn("doc-good", markdown)
         self.assertIn("case-1", markdown)
         self.assertIn("case-2", markdown)
 
@@ -59,6 +71,7 @@ def _record(
     cost: float,
     context: int,
     unsupported: bool = False,
+    selection_reasons: list[dict] | None = None,
 ) -> dict:
     """Build a minimal raw run record for frontier tests."""
 
@@ -69,6 +82,7 @@ def _record(
         "family": "retrieval_qa",
         "cost_proxy": cost,
         "context_chars_used": context,
+        "metrics": {"selection_reasons": selection_reasons or []},
         "tool_calls": [{"tool_name": "search_docs", "latency_ms": 0}],
         "grader_result": {
             "unsupported_answer": unsupported,

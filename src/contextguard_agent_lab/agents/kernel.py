@@ -128,7 +128,7 @@ class AgentKernel:
                     abstained=abstained,
                     tool_calls=state.tool_calls,
                     policy_decisions=state.policy_decisions,
-                    metrics={"tool_call_count": len(state.tool_calls)},
+                    metrics=_run_metrics(state),
                     cost_proxy=sum(call.cost_proxy for call in state.tool_calls),
                     context_chars_used=sum(call.context_chars for call in state.tool_calls),
                 ),
@@ -209,6 +209,15 @@ def _verification_arguments(answer: str, chunks: list[dict], answer_source_doc_i
     """Build the verifier input without gold labels."""
 
     return {"answer": answer, "chunks": chunks, "answer_source_doc_ids": answer_source_doc_ids}
+
+
+def _run_metrics(state: AgentState) -> dict:
+    """Build run metrics, including optional strategy-local diagnostics."""
+
+    metrics = {"tool_call_count": len(state.tool_calls)}
+    if "selection_reasons" in state.scratchpad:
+        metrics["selection_reasons"] = state.scratchpad["selection_reasons"]
+    return metrics
 
 
 def _can_retry_with_verification(case: CaseSpec, state: AgentState) -> bool:
