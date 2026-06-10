@@ -6,18 +6,20 @@
 
 - Source run trace: `reports/agent_strategy_ablation.jsonl`
 - Run records: 36
-- Unique cases: 9
+- Core aggregate records: 32
+- Excluded coding fixture records: 4
+- Unique cases: 8
 - Strategies: 4
-- Overall success rate: 66.7%
+- Overall success rate: 75.0%
 
 ## Success-Cost Table
 
 | strategy | success_rate | mean_cost | mean_context | budget_violation_rate | frontier_note |
 |---|---:|---:|---:|---:|---|
-| react | 44.4% | 0.902 | 235.1 | 0.0% | on current seed frontier |
-| plan_execute | 66.7% | 1.067 | 400.7 | 11.1% | on current seed frontier |
-| context_budget | 77.8% | 1.662 | 328.9 | 0.0% | on current seed frontier |
-| verify_then_answer | 77.8% | 2.054 | 386.9 | 11.1% | dominated in this seed run |
+| react | 50.0% | 1.014 | 264.5 | 0.0% | on current seed frontier |
+| plan_execute | 75.0% | 1.201 | 450.8 | 12.5% | on current seed frontier |
+| context_budget | 87.5% | 1.870 | 370.0 | 0.0% | on current seed frontier |
+| verify_then_answer | 87.5% | 2.310 | 435.2 | 12.5% | dominated in this seed run |
 
 ## Pareto Notes
 
@@ -28,7 +30,7 @@
 
 - Split wins for `context_budget`: `cg_budget_001`, `cg_rag_002`, `cg_rag_003`, `cg_verify_001`
 - Split losses for `context_budget`: `cg_adv_001`
-- Same-outcome cases for `context_budget`: `cg_code_001`, `cg_rag_001`, `cg_sensitive_001`, `cg_sensitive_002`
+- Same-outcome cases for `context_budget`: `cg_rag_001`, `cg_sensitive_001`, `cg_sensitive_002`
 - Current value: the budget strategy can preserve success where another strategy fails under cost or evidence constraints.
 - Current limitation: the budget strategy can still miss evidence when its conservative retrieval choice is too shallow.
 

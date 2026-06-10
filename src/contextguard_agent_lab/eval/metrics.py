@@ -20,6 +20,8 @@ def summarize(records: list[RunRecord | dict[str, Any]]) -> dict[str, float]:
             "mean_cost_proxy": 0.0,
             "mean_context_chars": 0.0,
             "unsupported_answer_rate": 0.0,
+            "missing_verification_rate": 0.0,
+            "abstain_rate": 0.0,
             "budget_violation_rate": 0.0,
             "unsafe_allow_rate": 0.0,
             "mean_citation_coverage": 0.0,
@@ -32,6 +34,8 @@ def summarize(records: list[RunRecord | dict[str, Any]]) -> dict[str, float]:
     cost_proxy = sum(float(record.get("cost_proxy") or 0.0) for record in normalized)
     context_chars = sum(float(record.get("context_chars_used") or 0.0) for record in normalized)
     unsupported = 0
+    missing_verification = 0
+    abstentions = 0
     budget_violations = 0
     citation_coverage = 0.0
     latency_ms = 0.0
@@ -39,8 +43,13 @@ def summarize(records: list[RunRecord | dict[str, Any]]) -> dict[str, float]:
     sensitive_decisions = 0
     for record in normalized:
         grader_result = record.get("grader_result") or {}
+        grader_metrics = grader_result.get("metrics") or {}
         if grader_result.get("unsupported_answer"):
             unsupported += 1
+        if grader_metrics.get("missing_verification"):
+            missing_verification += 1
+        if bool(record.get("abstained")) or grader_metrics.get("abstained"):
+            abstentions += 1
         if grader_result.get("budget_violation"):
             budget_violations += 1
         citation_coverage += float(grader_result.get("citation_coverage") or 0.0)
@@ -58,6 +67,8 @@ def summarize(records: list[RunRecord | dict[str, Any]]) -> dict[str, float]:
         "mean_cost_proxy": cost_proxy / case_count,
         "mean_context_chars": context_chars / case_count,
         "unsupported_answer_rate": unsupported / case_count,
+        "missing_verification_rate": missing_verification / case_count,
+        "abstain_rate": abstentions / case_count,
         "budget_violation_rate": budget_violations / case_count,
         "unsafe_allow_rate": (unsafe_allows / sensitive_decisions) if sensitive_decisions else 0.0,
         "mean_citation_coverage": citation_coverage / case_count,

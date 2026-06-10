@@ -149,6 +149,9 @@ Implementation content:
 - Expand to 20 MVP core cases, then 20-30 only if strategy splits remain meaningful.
 - Author every case with one or more declared dimensions: retrieval depth, verification timing, budget pressure, adversarial context, tool boundary.
 - Add adversarial context negative controls and poisoned / distractor documents.
+- Add at least one case where `source` / `trust_tier` is missing, ambiguous, or wrong so trust-aware source selection has a visible failure mode.
+- Consider per-case doc pools or a simple BM25 scorer before scaling the corpus, so new cases do not silently interfere with existing retrieval rankings.
+- Convert sensitive-action smoke cases into real ToolExecutor paths before using them as tool-boundary evidence.
 - Add verification tools such as `verify_citation` and `check_answer_support`.
 - Start failure taxonomy from real failed runs.
 
@@ -202,6 +205,8 @@ selection_score = chunk_value / max(chunk_cost, 1)
 ```
 
 - Track `cost_proxy`, context chars, tool calls, verification calls, and budget violations per run.
+- Implement VoI as chunk-level greedy selection under `BudgetSpec`, not as another fixed threshold branch.
+- Record selection reasons in trace metrics, including relevance, source reliability, novelty, marginal cost, and whether a chunk was skipped.
 - Generate success-cost frontier and Pareto / dominated strategy analysis.
 - Document cases where lower cost causes missed evidence.
 
@@ -228,6 +233,7 @@ Implementation content:
 
 - Add README claim-evidence table linking to reports, traces, and representative case cards.
 - Add architecture diagram or concise module map.
+- Add GitHub Actions for compile, tests, smoke artifact generation, and generated-artifact diff checks.
 - Add FastMCP adapter for 2-3 core tools only after in-process ToolSpec is stable.
 - Add resume bullets that avoid enterprise security, MCP-native, or LLM-improvement overclaims.
 
@@ -235,6 +241,7 @@ Artifacts:
 
 - Final README evidence table.
 - Tool manifest and optional FastMCP smoke transcript.
+- CI workflow transcript or badge once GitHub Actions is enabled.
 - Stable sample command set for reviewers.
 
 Exit gate:

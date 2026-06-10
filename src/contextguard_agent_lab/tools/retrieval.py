@@ -64,7 +64,7 @@ def verify_citation(arguments: dict[str, Any]) -> dict[str, Any]:
     evidence_tokens = _content_tokens(evidence_text)
     overlap = (len(answer_tokens.intersection(evidence_tokens)) / len(answer_tokens)) if answer_tokens else 0.0
     grounded = overlap >= 0.5
-    trust_score = max((_source_reliability(chunk) for chunk in source_chunks), default=0.0)
+    trust_score = min((_source_reliability(chunk) for chunk in source_chunks), default=0.0)
     trusted_source = trust_score >= 0.5
     return {
         "supported": grounded and trusted_source,

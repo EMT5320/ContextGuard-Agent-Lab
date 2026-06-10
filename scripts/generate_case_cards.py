@@ -127,11 +127,12 @@ def _case_card(index: int, case: CaseSpec, rows: list[dict[str, Any]]) -> list[s
         f"- Winners: {_escape(', '.join(winners) or 'none')}",
         f"- Losers: {_escape(', '.join(losers) or 'none')}",
         "",
-        "| strategy | success | sources | abstained | tools | cost | context | unsupported | budget_violation | grader_reason |",
-        "|---|---:|---|---:|---|---:|---:|---:|---:|---|",
+        "| strategy | success | sources | abstained | tools | cost | context | unsupported | missing_verification | budget_violation | grader_reason |",
+        "|---|---:|---|---:|---|---:|---:|---:|---:|---:|---|",
     ]
     for row in _sorted_rows(rows):
         grader_result = row.get("grader_result") or {}
+        grader_metrics = grader_result.get("metrics") or {}
         sources = ", ".join(str(doc_id) for doc_id in row.get("answer_source_doc_ids") or []) or "-"
         lines.append(
             "| "
@@ -143,6 +144,7 @@ def _case_card(index: int, case: CaseSpec, rows: list[dict[str, Any]]) -> list[s
             f"{float(row.get('cost_proxy') or 0.0):.3f} | "
             f"{int(row.get('context_chars_used') or 0)} | "
             f"{grader_result.get('unsupported_answer', False)} | "
+            f"{grader_metrics.get('missing_verification', False)} | "
             f"{grader_result.get('budget_violation', False)} | "
             f"{_escape(grader_result.get('reason', ''))} |"
         )

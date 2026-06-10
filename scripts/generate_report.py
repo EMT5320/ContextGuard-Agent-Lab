@@ -36,7 +36,9 @@ def build_report(records: list[dict[str, Any]], run_path: str, out_path: str) ->
 
     title = "Starter Smoke Report" if "sample" in Path(out_path).name else "Agent Strategy Ablation Report"
     subtitle = _subtitle(title)
-    overall = summarize(records)
+    core_records = _core_records(records)
+    overall = summarize(core_records)
+    total = summarize(records)
     lines = [
         f"# {title}",
         "",
@@ -45,17 +47,22 @@ def build_report(records: list[dict[str, Any]], run_path: str, out_path: str) ->
         "## Overview",
         "",
         f"- Run trace: `{run_path}`",
-        f"- Run records: {int(overall['case_count'])}",
+        f"- Run records: {int(total['case_count'])}",
+        f"- Core aggregate records: {int(overall['case_count'])}",
+        f"- Excluded coding fixture records: {len(records) - len(core_records)}",
         f"- Unique cases: {int(overall['unique_case_count'])}",
         f"- Overall success rate: {_pct(overall['task_success_rate'])}",
         f"- Unsupported answer rate: {_pct(overall['unsupported_answer_rate'])}",
+        f"- Missing verification rate: {_pct(overall['missing_verification_rate'])}",
+        f"- Abstain rate: {_pct(overall['abstain_rate'])}",
         f"- Budget violation rate: {_pct(overall['budget_violation_rate'])}",
         "",
     ]
-    lines.extend(_summary_section("By Strategy", _group_by(records, "strategy")))
-    lines.extend(_summary_section("By Family", _group_by(records, "family")))
-    lines.extend(_frontier_section(records))
-    lines.extend(_split_section(records))
+    lines.extend(_summary_section("By Strategy", _group_by(core_records, "strategy")))
+    lines.extend(_summary_section("By Family", _group_by(core_records, "family")))
+    lines.extend(_coding_fixture_section(records))
+    lines.extend(_frontier_section(core_records))
+    lines.extend(_split_section(core_records))
     lines.extend(_detail_section(records))
     lines.extend(_failure_section(records))
     return lines
@@ -75,8 +82,8 @@ def _summary_section(title: str, groups: dict[str, list[dict[str, Any]]]) -> lis
     lines = [
         f"## {title}",
         "",
-        "| group | runs | success_rate | unsupported_rate | budget_violation_rate | mean_tool_calls | mean_cost | mean_context |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|",
+        "| group | runs | success_rate | unsupported_rate | missing_verification_rate | abstain_rate | budget_violation_rate | mean_tool_calls | mean_cost | mean_context |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for group_name in sorted(groups):
         metrics = summarize(groups[group_name])
@@ -86,6 +93,8 @@ def _summary_section(title: str, groups: dict[str, list[dict[str, Any]]]) -> lis
             f"{int(metrics['case_count'])} | "
             f"{_pct(metrics['task_success_rate'])} | "
             f"{_pct(metrics['unsupported_answer_rate'])} | "
+            f"{_pct(metrics['missing_verification_rate'])} | "
+            f"{_pct(metrics['abstain_rate'])} | "
             f"{_pct(metrics['budget_violation_rate'])} | "
             f"{metrics['mean_tool_calls']:.2f} | "
             f"{metrics['mean_cost_proxy']:.3f} | "
@@ -93,6 +102,29 @@ def _summary_section(title: str, groups: dict[str, list[dict[str, Any]]]) -> lis
         )
     lines.append("")
     return lines
+
+
+def _coding_fixture_section(records: list[dict[str, Any]]) -> list[str]:
+    """Render coding fixture rows separately from core aggregate metrics."""
+
+    coding_records = [record for record in records if record.get("family") == "coding_fixture"]
+    if not coding_records:
+        return []
+    metrics = summarize(coding_records)
+    return [
+        "## Excluded Coding Fixtures",
+        "",
+        "Coding fixture rows remain in run detail, but they are excluded from core aggregate metrics until repair is implemented.",
+        "",
+        "| runs | success_rate | unsupported_rate | reason |",
+        "|---:|---:|---:|---|",
+        "| "
+        f"{int(metrics['case_count'])} | "
+        f"{_pct(metrics['task_success_rate'])} | "
+        f"{_pct(metrics['unsupported_answer_rate'])} | "
+        "stub_not_claimed |",
+        "",
+    ]
 
 
 def _frontier_section(records: list[dict[str, Any]]) -> list[str]:
@@ -193,11 +225,12 @@ def _detail_section(records: list[dict[str, Any]]) -> list[str]:
     lines = [
         "## Run Detail",
         "",
-        "| case_id | family | strategy | success | sources | abstained | tools | cost | context | unsupported | budget_violation | grader_reason |",
-        "|---|---|---|---:|---|---:|---|---:|---:|---:|---:|---|",
+        "| case_id | family | strategy | success | sources | abstained | tools | cost | context | unsupported | missing_verification | budget_violation | grader_reason |",
+        "|---|---|---|---:|---|---:|---|---:|---:|---:|---:|---:|---|",
     ]
     for record in sorted(records, key=lambda item: (item.get("case_id", ""), item.get("strategy", ""))):
         grader_result = record.get("grader_result") or {}
+        grader_metrics = grader_result.get("metrics") or {}
         tool_sequence = " -> ".join(call.get("tool_name", "") for call in record.get("tool_calls") or []) or "-"
         sources = ", ".join(str(doc_id) for doc_id in record.get("answer_source_doc_ids") or []) or "-"
         lines.append(
@@ -212,6 +245,7 @@ def _detail_section(records: list[dict[str, Any]]) -> list[str]:
             f"{float(record.get('cost_proxy') or 0.0):.3f} | "
             f"{int(record.get('context_chars_used') or 0)} | "
             f"{grader_result.get('unsupported_answer', False)} | "
+            f"{grader_metrics.get('missing_verification', False)} | "
             f"{grader_result.get('budget_violation', False)} | "
             f"{_escape(grader_result.get('reason', ''))} |"
         )
@@ -250,6 +284,8 @@ def _failure_mode(grader_result: dict[str, Any]) -> str:
 
     if grader_result.get("metrics", {}).get("abstained"):
         return "abstained"
+    if grader_result.get("metrics", {}).get("missing_verification"):
+        return "missing_verification"
     if grader_result.get("budget_violation"):
         return "budget_violation"
     if grader_result.get("unsupported_answer"):
@@ -264,6 +300,12 @@ def _group_by(records: list[dict[str, Any]], key: str) -> dict[str, list[dict[st
     for record in records:
         groups[str(record.get(key) or "unknown")].append(record)
     return groups
+
+
+def _core_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Exclude unimplemented coding fixtures from core benchmark aggregates."""
+
+    return [record for record in records if record.get("family") != "coding_fixture"]
 
 
 def _pct(value: float) -> str:

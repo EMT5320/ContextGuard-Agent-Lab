@@ -34,8 +34,9 @@ def main() -> None:
 def build_frontier_report(records: list[dict[str, Any]], run_path: str) -> list[str]:
     """Render the success-cost frontier report as Markdown lines."""
 
-    overall = summarize(records)
-    points = strategy_points(records)
+    core_records = _core_records(records)
+    overall = summarize(core_records)
+    points = strategy_points(core_records)
     dominated = dominated_strategies(points)
     lines = [
         "# Context Budget Frontier",
@@ -45,7 +46,9 @@ def build_frontier_report(records: list[dict[str, Any]], run_path: str) -> list[
         "## Overview",
         "",
         f"- Source run trace: `{run_path}`",
-        f"- Run records: {int(overall['case_count'])}",
+        f"- Run records: {len(records)}",
+        f"- Core aggregate records: {int(overall['case_count'])}",
+        f"- Excluded coding fixture records: {len(records) - len(core_records)}",
         f"- Unique cases: {int(overall['unique_case_count'])}",
         f"- Strategies: {len(points)}",
         f"- Overall success rate: {_pct(overall['task_success_rate'])}",
@@ -81,7 +84,7 @@ def build_frontier_report(records: list[dict[str, Any]], run_path: str) -> list[
         "## Context Budget Focus",
         "",
     ])
-    lines.extend(_context_budget_focus(records))
+    lines.extend(_context_budget_focus(core_records))
     lines.extend([
         "",
         "## Next Policy Upgrade",
@@ -190,6 +193,12 @@ def _group_by(records: list[dict[str, Any]], key: str) -> dict[str, list[dict[st
     for record in records:
         groups[str(record.get(key) or "unknown")].append(record)
     return groups
+
+
+def _core_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Exclude unimplemented coding fixtures from frontier aggregates."""
+
+    return [record for record in records if record.get("family") != "coding_fixture"]
 
 
 def _pct(value: float) -> str:

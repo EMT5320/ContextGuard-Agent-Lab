@@ -79,7 +79,7 @@ def _grade_retrieval_qa(
     return GraderResult(
         success=success,
         grader_type=grader_type,
-        unsupported_answer=(not source_supported or missing_verification) and not record.abstained,
+        unsupported_answer=not source_supported and not record.abstained,
         citation_coverage=source_coverage,
         budget_violation=budget_violation,
         reason=reason,
@@ -90,6 +90,7 @@ def _grade_retrieval_qa(
             "extra_answer_source_doc_ids": sorted(extra_sources),
             "verification_required": verification_required,
             "verification_supported": verification_supported,
+            "missing_verification": missing_verification,
             "abstained": record.abstained,
         },
     )
