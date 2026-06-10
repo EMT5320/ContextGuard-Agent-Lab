@@ -5,14 +5,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from contextguard_agent_lab.benchmark.schema import CaseSpec, PolicyDecision, ToolCallTrace
+from contextguard_agent_lab.benchmark.schema import CaseView, PolicyDecision, ToolCallTrace
 
 
 @dataclass(slots=True)
 class AgentState:
     """State passed between plan, tool execution, and reflection steps."""
 
-    case: CaseSpec
+    case: CaseView
     strategy: str
     plan: list[str] = field(default_factory=list)
     observations: list[str] = field(default_factory=list)

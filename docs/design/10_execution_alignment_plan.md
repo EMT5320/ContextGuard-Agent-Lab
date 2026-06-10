@@ -36,6 +36,7 @@ The project is not complete because any one phase can run a small scenario. It i
 | Gap | Current Symptom | Blocking Risk | Target Resolution |
 |---|---|---|---|
 | Strategy is too shallow | `AgentStrategy` exists, but current strategies only vary retrieval depth and verification timing | Ablation can remain thin | Expand cases and strategy actions before claiming benchmark results. |
+| Eval validity must stay hardened | Grader must judge final answer sources, while strategies and tools must not read gold labels | Ablation evidence can become false positive or label leakage | Keep `CaseView`, answer-source tracing, gold-free verification, and label visibility tests as Phase 1.5 gate. |
 | Grading is starter-only | `eval/graders.py` exists for starter families | Eval validity can be overstated | Add family-specific graders and negative controls. |
 | Tool boundary is partial | `ToolSpec` / `ToolExecutor` exist for starter retrieval and verification tools | MCP-compatible evidence remains narrow | Add read / verify / tool-boundary tools and manifest coverage. |
 | Budget signal is partial | `BudgetSpec` and per-call accounting exist | `context_budget_agent` can still become throttling | Add explicit VoI scoring and budget-pressure cases. |
@@ -109,6 +110,34 @@ Exit gate:
 [ ] Tool sequences differ across strategies on at least three cases.
 [ ] Grader result is stored separately from agent final answer.
 [ ] Tool manifest exports schema, risk, cost, and MCP exposure fields.
+```
+
+### Phase 1.5: Eval Validity Gate
+
+Goal: fix label leakage and grader blind spots before expanding the case suite.
+
+Implementation content:
+
+- Pass `CaseView` to strategies so gold labels, intended splits, and family labels are not runtime-visible to the policy under test.
+- Track `answer_source_doc_ids` and `plan` in every `RunRecord`.
+- Make verification tools judge answer grounding / source support from retrieved chunks and runtime provenance only; do not pass `expected_doc_ids` to tools.
+- Grade retrieval QA by final answer sources, not by whether gold docs appeared anywhere in retrieval results.
+- Treat abstention as a failed task but not as an unsupported answer.
+- Regenerate reports after validity fixes so old false-positive splits do not remain public evidence.
+
+Artifacts:
+
+- Unit tests for label visibility, gold-free verification, and adversarial first-hit false positives.
+- Updated JSONL traces with `answer_source_doc_ids`, `plan`, and `abstained` fields.
+- Regenerated ablation report, case cards, frontier report, and tool manifest.
+
+Exit gate:
+
+```text
+[ ] Strategies do not receive full CaseSpec.
+[ ] Tool traces do not contain `expected_doc_ids`.
+[ ] `cg_adv_001` cannot pass by answering from `poison_override`.
+[ ] Public reports show answer sources or abstention for representative cases.
 ```
 
 ### Phase 2: Strategy-Difference Case Suite

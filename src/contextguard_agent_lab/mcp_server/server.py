@@ -6,41 +6,15 @@ tool contracts through an in-process manifest first.
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
-from contextguard_agent_lab.tools.registry import ToolRegistry, ToolSpec
+from contextguard_agent_lab.tools.factory import build_default_tool_registry
 
 
-def build_tool_manifest() -> list[dict[str, Any]]:
+def build_tool_manifest(repo_root: str | Path | None = None) -> list[dict[str, Any]]:
     """Return the public tool contracts planned for MCP exposure."""
 
-    registry = ToolRegistry()
-    registry.register(
-        "search_docs",
-        lambda _arguments: {},
-        ToolSpec(
-            name="search_docs",
-            description="Search public toy corpus documents.",
-            input_schema={"type": "object", "required": ["query"]},
-            output_schema={"type": "object", "required": ["doc_ids", "chunks"]},
-            risk_level="low",
-            side_effect="none",
-            cost_estimate=1.0,
-            mcp_exposure="manifest",
-        ),
-    )
-    registry.register(
-        "verify_citation",
-        lambda _arguments: {},
-        ToolSpec(
-            name="verify_citation",
-            description="Check whether a final answer is supported by retrieved evidence.",
-            input_schema={"type": "object", "required": ["answer", "doc_ids"]},
-            output_schema={"type": "object", "required": ["supported", "citation_coverage"]},
-            risk_level="low",
-            side_effect="none",
-            cost_estimate=1.5,
-            mcp_exposure="manifest",
-        ),
-    )
+    root = Path(repo_root) if repo_root is not None else Path(__file__).resolve().parents[3]
+    registry = build_default_tool_registry(root)
     return registry.export_tool_manifest()

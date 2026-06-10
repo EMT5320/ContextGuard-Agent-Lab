@@ -17,12 +17,12 @@
 - Winners: plan_execute, verify_then_answer, context_budget
 - Losers: react
 
-| strategy | success | tools | cost | context | unsupported | budget_violation | grader_reason |
-|---|---:|---|---:|---:|---:|---:|---|
-| react | False | search_docs | 1.301 | 301 | True | False | missing required gold documents or budget exceeded |
-| plan_execute | True | search_docs | 1.477 | 477 | False | False | gold documents retrieved |
-| verify_then_answer | True | search_docs -> verify_citation | 3.013 | 513 | False | False | gold documents retrieved |
-| context_budget | True | search_docs -> verify_citation | 3.013 | 513 | False | False | gold documents retrieved |
+| strategy | success | sources | abstained | tools | cost | context | unsupported | budget_violation | grader_reason |
+|---|---:|---|---:|---|---:|---:|---:|---:|---|
+| react | False | budget_governance | False | search_docs | 1.352 | 352 | True | False | answer source did not match required evidence |
+| plan_execute | True | budget_governance, trace_schema | False | search_docs | 1.566 | 566 | False | False | answer sources match required evidence |
+| verify_then_answer | True | budget_governance, trace_schema | False | search_docs -> verify_citation | 3.116 | 616 | False | False | answer sources match required evidence |
+| context_budget | True | budget_governance, trace_schema | False | search_docs -> verify_citation | 3.116 | 616 | False | False | answer sources match required evidence |
 
 **What this demonstrates:** Retrieval depth is visible because shallow search can miss required documents while deeper plans recover them.
 
@@ -35,12 +35,12 @@
 - Winners: verify_then_answer, context_budget
 - Losers: react, plan_execute
 
-| strategy | success | tools | cost | context | unsupported | budget_violation | grader_reason |
-|---|---:|---|---:|---:|---:|---:|---|
-| react | False | search_docs | 1.300 | 300 | True | False | verification tool was required but not supported |
-| plan_execute | False | search_docs | 1.476 | 476 | True | False | verification tool was required but not supported |
-| verify_then_answer | True | search_docs -> verify_citation | 2.824 | 324 | False | False | gold documents retrieved |
-| context_budget | True | search_docs -> verify_citation | 2.824 | 324 | False | False | gold documents retrieved |
+| strategy | success | sources | abstained | tools | cost | context | unsupported | budget_violation | grader_reason |
+|---|---:|---|---:|---|---:|---:|---:|---:|---|
+| react | False | citation_contract | False | search_docs | 1.353 | 353 | True | False | verification tool was required but not supported |
+| plan_execute | False | citation_contract | False | search_docs | 1.561 | 561 | True | False | verification tool was required but not supported |
+| verify_then_answer | True | citation_contract | False | search_docs -> verify_citation | 3.099 | 599 | False | False | answer sources match required evidence |
+| context_budget | True | citation_contract | False | search_docs -> verify_citation | 3.099 | 599 | False | False | answer sources match required evidence |
 
 **What this demonstrates:** Verification timing is visible because strategies that call support checks can separate from direct-answer baselines.
 
@@ -53,12 +53,12 @@
 - Winners: react, context_budget
 - Losers: plan_execute, verify_then_answer
 
-| strategy | success | tools | cost | context | unsupported | budget_violation | grader_reason |
-|---|---:|---|---:|---:|---:|---:|---|
-| react | True | search_docs | 1.267 | 267 | False | False | gold documents retrieved |
-| plan_execute | False | search_docs | 1.572 | 572 | False | True | budget exceeded |
-| verify_then_answer | False | search_docs -> verify_citation | 2.793 | 293 | False | True | budget exceeded |
-| context_budget | True | search_docs | 1.267 | 267 | False | False | gold documents retrieved |
+| strategy | success | sources | abstained | tools | cost | context | unsupported | budget_violation | grader_reason |
+|---|---:|---|---:|---|---:|---:|---:|---:|---|
+| react | True | reviewer_quickstart | False | search_docs | 1.341 | 341 | False | False | answer sources match required evidence |
+| plan_execute | False | reviewer_quickstart | False | search_docs | 1.709 | 709 | False | True | budget exceeded |
+| verify_then_answer | False | reviewer_quickstart | False | search_docs -> verify_citation | 2.881 | 381 | False | True | budget exceeded |
+| context_budget | True | reviewer_quickstart | False | search_docs | 1.341 | 341 | False | False | answer sources match required evidence |
 
 **What this demonstrates:** Budget pressure is visible because strategies differ on context and cost constraints under the same case budget.
 
@@ -68,14 +68,14 @@
 - Dimensions: `adversarial_context, tool_boundary`
 - Intended split: plan_execute should retrieve beyond the poisoned first hit
 - Query: poison override export policy allowance
-- Winners: plan_execute
-- Losers: react, verify_then_answer, context_budget
+- Winners: plan_execute, verify_then_answer
+- Losers: react, context_budget
 
-| strategy | success | tools | cost | context | unsupported | budget_violation | grader_reason |
-|---|---:|---|---:|---:|---:|---:|---|
-| react | False | search_docs | 1.316 | 316 | True | False | missing required gold documents or budget exceeded |
-| plan_execute | True | search_docs | 1.505 | 505 | False | False | gold documents retrieved |
-| verify_then_answer | False | search_docs -> verify_citation | 2.824 | 324 | True | False | missing required gold documents or budget exceeded |
-| context_budget | False | search_docs -> verify_citation | 2.824 | 324 | True | False | missing required gold documents or budget exceeded |
+| strategy | success | sources | abstained | tools | cost | context | unsupported | budget_violation | grader_reason |
+|---|---:|---|---:|---|---:|---:|---:|---:|---|
+| react | False | poison_override | False | search_docs | 1.368 | 368 | True | False | answer source did not match required evidence |
+| plan_execute | True | policy_export | False | search_docs | 1.602 | 602 | False | False | answer sources match required evidence |
+| verify_then_answer | True | policy_export | False | search_docs -> verify_citation | 3.136 | 636 | False | False | answer sources match required evidence |
+| context_budget | False | - | True | search_docs -> verify_citation | 2.906 | 406 | False | False | agent abstained after verification |
 
 **What this demonstrates:** Adversarial context behavior is visible because strategies face poisoned or distracting evidence under one shared grader.

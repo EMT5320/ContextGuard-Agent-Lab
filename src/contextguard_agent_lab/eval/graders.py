@@ -40,38 +40,57 @@ def _grade_retrieval_qa(
     grader_type: str,
     budget_violation: bool,
 ) -> GraderResult:
-    """Check whether required gold documents and optional verification appeared."""
+    """Check whether the final answer cites the required gold sources."""
 
     seen_doc_ids: set[str] = set()
     for call in record.tool_calls:
         doc_ids = call.result.get("doc_ids", [])
         seen_doc_ids.update(str(doc_id) for doc_id in doc_ids)
     expected_doc_ids = set(case.expected_outcome.gold_doc_ids)
-    matched = expected_doc_ids.intersection(seen_doc_ids)
-    coverage = (len(matched) / len(expected_doc_ids)) if expected_doc_ids else 1.0
+    retrieved_matched = expected_doc_ids.intersection(seen_doc_ids)
+    retrieved_coverage = (len(retrieved_matched) / len(expected_doc_ids)) if expected_doc_ids else 1.0
+    answer_source_doc_ids = {str(doc_id) for doc_id in record.answer_source_doc_ids}
+    answer_matched = expected_doc_ids.intersection(answer_source_doc_ids)
+    extra_sources = answer_source_doc_ids.difference(expected_doc_ids)
+    source_coverage = (len(answer_matched) / len(expected_doc_ids)) if expected_doc_ids else 1.0
+    allow_partial = bool(getattr(case.grader, "allow_partial", False))
+    if record.abstained:
+        source_supported = False
+    elif expected_doc_ids and allow_partial:
+        source_supported = bool(answer_matched) and not extra_sources
+    elif expected_doc_ids:
+        source_supported = bool(answer_source_doc_ids) and not extra_sources and source_coverage >= 1.0
+    else:
+        source_supported = bool(answer_source_doc_ids)
     verification_required = grader_type == "verification_needed" or case.family == "verification_needed"
     verification_supported = _has_supported_verification(record)
     missing_verification = verification_required and not verification_supported
-    success = coverage >= 1.0 and not missing_verification and not budget_violation
-    if success:
-        reason = "gold documents retrieved"
-    elif budget_violation and coverage >= 1.0 and not missing_verification:
+    success = source_supported and not missing_verification and not budget_violation and not record.abstained
+    if record.abstained:
+        reason = "agent abstained after verification"
+    elif success:
+        reason = "answer sources match required evidence"
+    elif budget_violation and source_supported and not missing_verification:
         reason = "budget exceeded"
     elif missing_verification:
         reason = "verification tool was required but not supported"
     else:
-        reason = "missing required gold documents or budget exceeded"
+        reason = "answer source did not match required evidence"
     return GraderResult(
         success=success,
         grader_type=grader_type,
-        unsupported_answer=coverage < 1.0 or missing_verification,
-        citation_coverage=coverage,
+        unsupported_answer=(not source_supported or missing_verification) and not record.abstained,
+        citation_coverage=source_coverage,
         budget_violation=budget_violation,
         reason=reason,
         metrics={
-            "gold_doc_coverage": coverage,
+            "retrieved_gold_coverage": retrieved_coverage,
+            "answer_source_coverage": source_coverage,
+            "answer_source_doc_ids": sorted(answer_source_doc_ids),
+            "extra_answer_source_doc_ids": sorted(extra_sources),
             "verification_required": verification_required,
             "verification_supported": verification_supported,
+            "abstained": record.abstained,
         },
     )
 

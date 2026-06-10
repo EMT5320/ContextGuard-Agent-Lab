@@ -8,16 +8,16 @@
 - Run records: 36
 - Unique cases: 9
 - Strategies: 4
-- Overall success rate: 63.9%
+- Overall success rate: 66.7%
 
 ## Success-Cost Table
 
 | strategy | success_rate | mean_cost | mean_context | budget_violation_rate | frontier_note |
 |---|---:|---:|---:|---:|---|
-| react | 44.4% | 0.866 | 198.9 | 0.0% | on current seed frontier |
-| plan_execute | 66.7% | 1.000 | 332.9 | 11.1% | on current seed frontier |
-| context_budget | 77.8% | 1.586 | 252.2 | 0.0% | on current seed frontier |
-| verify_then_answer | 66.7% | 1.924 | 256.9 | 11.1% | dominated in this seed run |
+| react | 44.4% | 0.902 | 235.1 | 0.0% | on current seed frontier |
+| plan_execute | 66.7% | 1.067 | 400.7 | 11.1% | on current seed frontier |
+| context_budget | 77.8% | 1.662 | 328.9 | 0.0% | on current seed frontier |
+| verify_then_answer | 77.8% | 2.054 | 386.9 | 11.1% | dominated in this seed run |
 
 ## Pareto Notes
 

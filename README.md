@@ -16,7 +16,7 @@ The current MVP strategies are `react`, `plan_execute`, `verify_then_answer`, an
 |---|---|
 | Same cases across multiple strategies | `scripts/run_eval.py --strategies ...` |
 | Structured tool boundary | `ToolSpec`, `ToolExecutor`, `reports/tool_manifest.json` |
-| Independent grading | `eval/graders.py`, `grader_result` in JSONL runs |
+| Independent grading | `eval/graders.py`, `answer_source_doc_ids`, `grader_result` in JSONL runs |
 | Cost and context accounting | `cost_proxy`, `context_chars_used`, per-call trace fields |
 | Seed strategy comparison | `reports/sample_report.md`, `reports/agent_strategy_ablation.md` |
 
@@ -27,6 +27,7 @@ The current MVP strategies are `react`, `plan_execute`, `verify_then_answer`, an
 | Same cases compare multiple deterministic agent strategies. | `reports/agent_strategy_ablation.md`, `reports/agent_strategy_ablation.jsonl` |
 | Tool use is exposed through an MCP-compatible in-process boundary. | `reports/tool_manifest.json`, `src/contextguard_agent_lab/tools/registry.py` |
 | Independent grading is stored separately from agent answers. | `grader_result` fields in `reports/agent_strategy_ablation.jsonl` |
+| Strategies and tools do not receive gold labels. | `CaseView`, gold-free `verify_citation` traces, `docs/design/05_claim_and_eval_contract.md` |
 | Context and budget tradeoffs are measurable. | `reports/context_budget_frontier.md`, `reports/agent_strategy_ablation.md` |
 | Representative strategy splits are inspectable. | `reports/case_cards.md` |
 
@@ -86,8 +87,9 @@ Phase 1 is in progress. Implemented so far:
 
 - `BudgetSpec`, `ExpectedOutcome`, `GraderSpec`, and `GraderResult`.
 - `ToolSpec`, `ToolRegistry`, `ToolExecutor`, and manifest export.
-- `AgentStrategy` protocol and four deterministic MVP strategy skeletons.
+- `AgentStrategy` protocol and four deterministic MVP strategy skeletons using label-free `CaseView`.
 - Independent starter graders for retrieval QA, sensitive-action smoke cases, and unimplemented coding fixtures.
+- Answer-source tracing, abstention tracing, and gold-free verification over retrieved chunks and runtime provenance.
 - 9 public starter cases covering retrieval depth, verification timing, budget pressure, adversarial context, tool boundary, and a clearly marked coding stub.
 - Multi-strategy CLI smoke and seed-suite report workflow.
 

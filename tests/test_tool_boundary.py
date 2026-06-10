@@ -67,8 +67,12 @@ class ToolBoundaryTest(unittest.TestCase):
 
         self.assertIn("input_schema", search_docs)
         self.assertIn("output_schema", search_docs)
+        self.assertIn("properties", search_docs["input_schema"])
         self.assertIn("mcp_exposure", search_docs)
         self.assertEqual(search_docs["side_effect"], "none")
+        verify = next(entry for entry in manifest if entry["name"] == "verify_citation")
+        self.assertIn("answer_source_doc_ids", verify["input_schema"]["properties"])
+        self.assertNotIn("expected_doc_ids", verify["input_schema"]["properties"])
 
 
 if __name__ == "__main__":

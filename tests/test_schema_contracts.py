@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from contextguard_agent_lab.benchmark.schema import BudgetSpec, CaseSpec, ExpectedOutcome, GraderSpec
+from contextguard_agent_lab.benchmark.schema import BudgetSpec, CaseSpec, CaseView, ExpectedOutcome, GraderSpec
 
 
 class SchemaContractsTest(unittest.TestCase):
@@ -31,6 +31,28 @@ class SchemaContractsTest(unittest.TestCase):
         self.assertIsInstance(case.grader, GraderSpec)
         self.assertEqual(case.family, "retrieval_qa")
         self.assertEqual(case.budget.max_tool_calls, 2)
+
+    def test_case_view_hides_gold_labels(self) -> None:
+        """Strategies should receive only runtime-visible case fields."""
+
+        case = CaseSpec(
+            case_id="case-1",
+            case_type="rag_qa",
+            family="verification_needed",
+            user_query="question",
+            expected_answer="answer",
+            gold_doc_ids=["doc-1"],
+            metadata={"intended_split": "hidden from strategies"},
+        )
+
+        view = case.to_view()
+
+        self.assertIsInstance(view, CaseView)
+        self.assertEqual(view.user_query, "question")
+        self.assertFalse(hasattr(view, "gold_doc_ids"))
+        self.assertFalse(hasattr(view, "expected_outcome"))
+        self.assertFalse(hasattr(view, "family"))
+        self.assertFalse(hasattr(view, "metadata"))
 
     def test_case_spec_derives_legacy_expected_outcome(self) -> None:
         """Legacy sample cases should still expose expected outcome fields."""

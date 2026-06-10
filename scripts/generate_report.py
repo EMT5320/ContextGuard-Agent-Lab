@@ -193,18 +193,21 @@ def _detail_section(records: list[dict[str, Any]]) -> list[str]:
     lines = [
         "## Run Detail",
         "",
-        "| case_id | family | strategy | success | tools | cost | context | unsupported | budget_violation | grader_reason |",
-        "|---|---|---|---:|---|---:|---:|---:|---:|---|",
+        "| case_id | family | strategy | success | sources | abstained | tools | cost | context | unsupported | budget_violation | grader_reason |",
+        "|---|---|---|---:|---|---:|---|---:|---:|---:|---:|---|",
     ]
     for record in sorted(records, key=lambda item: (item.get("case_id", ""), item.get("strategy", ""))):
         grader_result = record.get("grader_result") or {}
         tool_sequence = " -> ".join(call.get("tool_name", "") for call in record.get("tool_calls") or []) or "-"
+        sources = ", ".join(str(doc_id) for doc_id in record.get("answer_source_doc_ids") or []) or "-"
         lines.append(
             "| "
             f"{_escape(record.get('case_id'))} | "
             f"{_escape(record.get('family'))} | "
             f"{_escape(record.get('strategy'))} | "
             f"{record.get('success')} | "
+            f"{_escape(sources)} | "
+            f"{record.get('abstained', False)} | "
             f"{_escape(tool_sequence)} | "
             f"{float(record.get('cost_proxy') or 0.0):.3f} | "
             f"{int(record.get('context_chars_used') or 0)} | "
@@ -245,6 +248,8 @@ def _failure_section(records: list[dict[str, Any]]) -> list[str]:
 def _failure_mode(grader_result: dict[str, Any]) -> str:
     """Classify a failure from grader flags."""
 
+    if grader_result.get("metrics", {}).get("abstained"):
+        return "abstained"
     if grader_result.get("budget_violation"):
         return "budget_violation"
     if grader_result.get("unsupported_answer"):

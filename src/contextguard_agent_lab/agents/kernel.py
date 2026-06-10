@@ -26,7 +26,7 @@ class AgentKernel:
         """Run one case with a deterministic starter policy."""
 
         strategy_impl = resolve_strategy(strategy)
-        state = AgentState(case=case, strategy=strategy_impl.name)
+        state = AgentState(case=case.to_view(), strategy=strategy_impl.name)
         state.plan = strategy_impl.plan(state)
 
         if case.case_type == "sensitive_action" and case.sensitive_action:
@@ -46,6 +46,7 @@ class AgentKernel:
                     success=False,
                     family=case.family,
                     budget=case.budget,
+                    plan=list(state.plan),
                     tool_calls=state.tool_calls,
                     policy_decisions=state.policy_decisions,
                     metrics={"policy_missing_count": len(decision.missing_evidence)},
@@ -53,20 +54,36 @@ class AgentKernel:
             )
 
         if case.case_type == "rag_qa":
-            top_k = strategy_impl.retrieval_top_k(case, state)
+            top_k = strategy_impl.retrieval_top_k(state.case, state)
             result = self.tools.call("search_docs", {"query": case.user_query, "top_k": top_k})
             state.tool_calls.append(result.trace(case.case_id, step_index=1))
-            answer = result.payload.get("answer_hint", "No answer found.")
-            if strategy_impl.should_verify_answer(case, state):
-                verification = self.tools.call(
-                    "verify_citation",
-                    {
-                        "answer": answer,
-                        "doc_ids": result.payload.get("doc_ids", []),
-                        "expected_doc_ids": case.expected_outcome.gold_doc_ids,
-                    },
-                )
+            chunks = _payload_chunks(result.payload)
+            answer_chunks = strategy_impl.select_answer_chunks(chunks, state)
+            answer = _compose_answer(answer_chunks)
+            answer_source_doc_ids = _chunk_doc_ids(answer_chunks)
+            abstained = False
+            if strategy_impl.should_verify_answer(state.case, state):
+                verification = self.tools.call("verify_citation", _verification_arguments(answer, chunks, answer_source_doc_ids))
                 state.tool_calls.append(verification.trace(case.case_id, step_index=2))
+                if not verification.payload.get("supported"):
+                    if strategy_impl.should_retry_after_verification(state.case, state) and _can_retry_with_verification(case, state):
+                        retry = self.tools.call("search_docs", {"query": case.user_query, "top_k": top_k + 1})
+                        state.tool_calls.append(retry.trace(case.case_id, step_index=3))
+                        chunks = _payload_chunks(retry.payload)
+                        answer_chunks = strategy_impl.select_answer_chunks(chunks, state)
+                        answer = _compose_answer(answer_chunks)
+                        answer_source_doc_ids = _chunk_doc_ids(answer_chunks)
+                        retry_verification = self.tools.call(
+                            "verify_citation",
+                            _verification_arguments(answer, chunks, answer_source_doc_ids),
+                        )
+                        state.tool_calls.append(retry_verification.trace(case.case_id, step_index=4))
+                        abstained = not bool(retry_verification.payload.get("supported"))
+                    else:
+                        abstained = True
+            if abstained:
+                answer = "abstain: verification did not support the answer"
+                answer_source_doc_ids = []
             return self._finalize(
                 case,
                 RunRecord(
@@ -76,6 +93,9 @@ class AgentKernel:
                     success=False,
                     family=case.family,
                     budget=case.budget,
+                    plan=list(state.plan),
+                    answer_source_doc_ids=answer_source_doc_ids,
+                    abstained=abstained,
                     tool_calls=state.tool_calls,
                     policy_decisions=state.policy_decisions,
                     metrics={"tool_call_count": len(state.tool_calls)},
@@ -97,6 +117,7 @@ class AgentKernel:
                     success=False,
                     family=case.family,
                     budget=case.budget,
+                    plan=list(state.plan),
                     metrics={"repair_loop_stub": True, "status": "stub_not_claimed"},
                 ),
             )
@@ -110,6 +131,7 @@ class AgentKernel:
                 success=False,
                 family=case.family,
                 budget=case.budget,
+                plan=list(state.plan),
             ),
         )
 
@@ -122,3 +144,39 @@ class AgentKernel:
         record.metrics.update(grader_result.metrics)
         record.metrics["budget_violation"] = grader_result.budget_violation
         return record
+
+
+def _payload_chunks(payload: dict) -> list[dict]:
+    """Return structured retrieval chunks from a tool payload."""
+
+    return [chunk for chunk in payload.get("chunks", []) if isinstance(chunk, dict)]
+
+
+def _compose_answer(chunks: list[dict]) -> str:
+    """Compose a deterministic answer from selected evidence chunks."""
+
+    if not chunks:
+        return "No answer found."
+    return " ".join(str(chunk.get("text", "")) for chunk in chunks if chunk.get("text")) or "No answer found."
+
+
+def _chunk_doc_ids(chunks: list[dict]) -> list[str]:
+    """Return selected source document ids in trace order."""
+
+    return [str(chunk.get("doc_id")) for chunk in chunks if chunk.get("doc_id")]
+
+
+def _verification_arguments(answer: str, chunks: list[dict], answer_source_doc_ids: list[str]) -> dict:
+    """Build the verifier input without gold labels."""
+
+    return {"answer": answer, "chunks": chunks, "answer_source_doc_ids": answer_source_doc_ids}
+
+
+def _can_retry_with_verification(case: CaseSpec, state: AgentState) -> bool:
+    """Check whether a retry search plus verifier call can fit declared limits."""
+
+    verification_calls = sum(1 for call in state.tool_calls if "verify" in call.tool_name or "support" in call.tool_name)
+    return (
+        len(state.tool_calls) + 2 <= case.budget.max_tool_calls
+        and verification_calls + 1 <= case.budget.max_verification_calls
+    )

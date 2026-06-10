@@ -15,25 +15,25 @@
 
 | group | runs | success_rate | unsupported_rate | budget_violation_rate | mean_tool_calls | mean_cost | mean_context |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| context_budget | 3 | 100.0% | 0.0% | 0.0% | 1.67 | 2.452 | 451.7 |
-| plan_execute | 3 | 100.0% | 0.0% | 0.0% | 1.00 | 1.481 | 481.0 |
-| react | 3 | 33.3% | 66.7% | 0.0% | 1.00 | 1.302 | 302.3 |
-| verify_then_answer | 3 | 100.0% | 0.0% | 0.0% | 2.00 | 2.957 | 457.0 |
+| context_budget | 3 | 100.0% | 0.0% | 0.0% | 1.67 | 2.538 | 538.0 |
+| plan_execute | 3 | 100.0% | 0.0% | 0.0% | 1.00 | 1.578 | 578.0 |
+| react | 3 | 33.3% | 66.7% | 0.0% | 1.00 | 1.351 | 351.3 |
+| verify_then_answer | 3 | 100.0% | 0.0% | 0.0% | 2.00 | 3.122 | 622.0 |
 
 ## By Family
 
 | group | runs | success_rate | unsupported_rate | budget_violation_rate | mean_tool_calls | mean_cost | mean_context |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| retrieval_qa | 12 | 83.3% | 16.7% | 0.0% | 1.42 | 2.048 | 423.0 |
+| retrieval_qa | 12 | 83.3% | 16.7% | 0.0% | 1.42 | 2.147 | 522.3 |
 
 ## Success-Cost View
 
 | strategy | success_rate | mean_cost | mean_context | budget_violation_rate | frontier_note |
 |---|---:|---:|---:|---:|---|
-| react | 33.3% | 1.302 | 302.3 | 0.0% | on current frontier |
-| plan_execute | 100.0% | 1.481 | 481.0 | 0.0% | on current frontier |
-| context_budget | 100.0% | 2.452 | 451.7 | 0.0% | dominated in this run |
-| verify_then_answer | 100.0% | 2.957 | 457.0 | 0.0% | dominated in this run |
+| react | 33.3% | 1.351 | 351.3 | 0.0% | on current frontier |
+| plan_execute | 100.0% | 1.578 | 578.0 | 0.0% | on current frontier |
+| context_budget | 100.0% | 2.538 | 538.0 | 0.0% | dominated in this run |
+| verify_then_answer | 100.0% | 3.122 | 622.0 | 0.0% | dominated in this run |
 
 ## Observed Strategy Splits
 
@@ -44,24 +44,24 @@
 
 ## Run Detail
 
-| case_id | family | strategy | success | tools | cost | context | unsupported | budget_violation | grader_reason |
-|---|---|---|---:|---|---:|---:|---:|---:|---|
-| cg_rag_001 | retrieval_qa | context_budget | True | search_docs | 1.303 | 303 | False | False | gold documents retrieved |
-| cg_rag_001 | retrieval_qa | plan_execute | True | search_docs | 1.465 | 465 | False | False | gold documents retrieved |
-| cg_rag_001 | retrieval_qa | react | True | search_docs | 1.303 | 303 | False | False | gold documents retrieved |
-| cg_rag_001 | retrieval_qa | verify_then_answer | True | search_docs -> verify_citation | 2.819 | 319 | False | False | gold documents retrieved |
-| cg_rag_002 | retrieval_qa | context_budget | True | search_docs -> verify_citation | 3.013 | 513 | False | False | gold documents retrieved |
-| cg_rag_002 | retrieval_qa | plan_execute | True | search_docs | 1.477 | 477 | False | False | gold documents retrieved |
-| cg_rag_002 | retrieval_qa | react | False | search_docs | 1.301 | 301 | True | False | missing required gold documents or budget exceeded |
-| cg_rag_002 | retrieval_qa | verify_then_answer | True | search_docs -> verify_citation | 3.013 | 513 | False | False | gold documents retrieved |
-| cg_rag_003 | retrieval_qa | context_budget | True | search_docs -> verify_citation | 3.039 | 539 | False | False | gold documents retrieved |
-| cg_rag_003 | retrieval_qa | plan_execute | True | search_docs | 1.501 | 501 | False | False | gold documents retrieved |
-| cg_rag_003 | retrieval_qa | react | False | search_docs | 1.303 | 303 | True | False | missing required gold documents or budget exceeded |
-| cg_rag_003 | retrieval_qa | verify_then_answer | True | search_docs -> verify_citation | 3.039 | 539 | False | False | gold documents retrieved |
+| case_id | family | strategy | success | sources | abstained | tools | cost | context | unsupported | budget_violation | grader_reason |
+|---|---|---|---:|---|---:|---|---:|---:|---:|---:|---|
+| cg_rag_001 | retrieval_qa | context_budget | True | mcp_intro | False | search_docs | 1.345 | 345 | False | False | answer sources match required evidence |
+| cg_rag_001 | retrieval_qa | plan_execute | True | mcp_intro | False | search_docs | 1.567 | 567 | False | False | answer sources match required evidence |
+| cg_rag_001 | retrieval_qa | react | True | mcp_intro | False | search_docs | 1.345 | 345 | False | False | answer sources match required evidence |
+| cg_rag_001 | retrieval_qa | verify_then_answer | True | mcp_intro | False | search_docs -> verify_citation | 3.097 | 597 | False | False | answer sources match required evidence |
+| cg_rag_002 | retrieval_qa | context_budget | True | budget_governance, trace_schema | False | search_docs -> verify_citation | 3.116 | 616 | False | False | answer sources match required evidence |
+| cg_rag_002 | retrieval_qa | plan_execute | True | budget_governance, trace_schema | False | search_docs | 1.566 | 566 | False | False | answer sources match required evidence |
+| cg_rag_002 | retrieval_qa | react | False | budget_governance | False | search_docs | 1.352 | 352 | True | False | answer source did not match required evidence |
+| cg_rag_002 | retrieval_qa | verify_then_answer | True | budget_governance, trace_schema | False | search_docs -> verify_citation | 3.116 | 616 | False | False | answer sources match required evidence |
+| cg_rag_003 | retrieval_qa | context_budget | True | mcp_intro, tool_manifest_contract | False | search_docs -> verify_citation | 3.153 | 653 | False | False | answer sources match required evidence |
+| cg_rag_003 | retrieval_qa | plan_execute | True | mcp_intro, tool_manifest_contract | False | search_docs | 1.601 | 601 | False | False | answer sources match required evidence |
+| cg_rag_003 | retrieval_qa | react | False | mcp_intro | False | search_docs | 1.357 | 357 | True | False | answer source did not match required evidence |
+| cg_rag_003 | retrieval_qa | verify_then_answer | True | mcp_intro, tool_manifest_contract | False | search_docs -> verify_citation | 3.153 | 653 | False | False | answer sources match required evidence |
 
 ## Failure Highlights
 
 | case_id | strategy | failure_mode | reason |
 |---|---|---|---|
-| cg_rag_002 | react | unsupported_answer | missing required gold documents or budget exceeded |
-| cg_rag_003 | react | unsupported_answer | missing required gold documents or budget exceeded |
+| cg_rag_002 | react | unsupported_answer | answer source did not match required evidence |
+| cg_rag_003 | react | unsupported_answer | answer source did not match required evidence |

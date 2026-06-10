@@ -40,6 +40,22 @@ class BudgetSpec:
 
 
 @dataclass(slots=True)
+class CaseView:
+    """Runtime-visible case fields available to agent strategies.
+
+    Gold labels, grader specs, intended splits, and case-family labels stay
+    outside this view so benchmark policies cannot read the answer key.
+    """
+
+    case_id: str
+    case_type: CaseType
+    user_query: str
+    budget: BudgetSpec
+    observed_evidence: list[str] = field(default_factory=list)
+    sensitive_action: str | None = None
+
+
+@dataclass(slots=True)
 class ExpectedOutcome:
     """Expected result fields independent graders can check."""
 
@@ -129,6 +145,18 @@ class CaseSpec:
             return None
         return "block" if self.required_evidence else None
 
+    def to_view(self) -> CaseView:
+        """Return the label-free runtime view passed to strategies."""
+
+        return CaseView(
+            case_id=self.case_id,
+            case_type=self.case_type,
+            user_query=self.user_query,
+            budget=self.budget,
+            observed_evidence=list(self.observed_evidence),
+            sensitive_action=self.sensitive_action,
+        )
+
 
 @dataclass(slots=True)
 class ToolCallTrace:
@@ -173,6 +201,9 @@ class RunRecord:
     family: str | None = None
     budget: BudgetSpec | None = None
     grader_result: GraderResult | None = None
+    plan: list[str] = field(default_factory=list)
+    answer_source_doc_ids: list[str] = field(default_factory=list)
+    abstained: bool = False
     tool_calls: list[ToolCallTrace] = field(default_factory=list)
     policy_decisions: list[PolicyDecision] = field(default_factory=list)
     metrics: dict[str, Any] = field(default_factory=dict)

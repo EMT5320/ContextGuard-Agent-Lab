@@ -15,7 +15,22 @@
 
 MVP public claims are limited to strategy benchmark, MCP-compatible in-process tool boundary, context budget tradeoffs, cost-aware control policy, and verification tradeoffs. Reflection, sensitive-action handling, FastMCP exposure, coding repair, and LLM-backed planning are claimable only after their traces, graders, metrics, and reports exist.
 
-## 2. Disallowed Claims
+## 2. Label Visibility Contract
+
+`gold`、`expected_outcome`、`grader`、`metadata.intended_split` 和 case-family 评测标签只能服务于评测与报告，不得进入被测策略或工具实现。
+
+| Data | Grader | AgentStrategy | Tool Implementation | Report |
+|---|---|---|---|---|
+| `gold_doc_ids` / `expected_outcome` | 可读 | 禁止 | 禁止 | 可读 |
+| `metadata.intended_split` | 可读 | 禁止 | 禁止 | 可读 |
+| `family` / dimensions | 可读 | 禁止 | 禁止 | 可读 |
+| `user_query` / `budget` | 可读 | 可读 | 按工具输入可读 | 可读 |
+| runtime provenance such as `source` / `trust_tier` | 可读 | 可读 | 可读 | 可读 |
+| retrieved chunks / answer source ids | 可读 | 可读 | 可读 | 可读 |
+
+Implementation rule: strategies receive `CaseView`, not full `CaseSpec`. Verification tools must validate grounding and source metadata from retrieved evidence; they must not receive gold labels such as `expected_doc_ids`.
+
+## 3. Disallowed Claims
 
 - Production-grade enterprise security。
 - Full coding agent replacement。
@@ -26,7 +41,7 @@ MVP public claims are limited to strategy benchmark, MCP-compatible in-process t
 - LLM-backed strategy improvement before hosted/local planner experiments are implemented and measured。
 - Algorithmic superiority beyond bounded cases and explicit baselines。
 
-## 3. Minimum Metric Contract
+## 4. Minimum Metric Contract
 
 | Metric | Definition |
 |---|---|
@@ -44,7 +59,7 @@ MVP public claims are limited to strategy benchmark, MCP-compatible in-process t
 | `unsafe_allow_rate` | Sensitive action allowed while required evidence is missing。 |
 | `false_block_rate` | Benign or fully evidenced sensitive action blocked。 |
 
-## 4. Case Card Contract
+## 5. Case Card Contract
 
 Each public case card must include:
 
@@ -56,7 +71,7 @@ Each public case card must include:
 - what the strategy comparison proves。
 - honest limitation。
 
-## 5. Review Gate
+## 6. Review Gate
 
 Before implementation sprint, at least one external/model review should challenge:
 
