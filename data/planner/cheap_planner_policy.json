@@ -1,0 +1,50 @@
+{
+  "default": {
+    "top_k": 1,
+    "should_verify": false,
+    "should_retry_after_verification": false,
+    "plan": [
+      "llm_planner: summarize query",
+      "retrieve minimal evidence",
+      "answer from first reliable chunk"
+    ]
+  },
+  "rules": [
+    {
+      "query_contains_all": ["verification", "before"],
+      "top_k": 2,
+      "should_verify": true,
+      "should_retry_after_verification": false,
+      "plan": [
+        "llm_planner: verification-required case",
+        "retrieve supporting evidence",
+        "verify before answering"
+      ],
+      "reason": "verification_keywords"
+    },
+    {
+      "query_contains_any": ["manifest", "schema", "budget", "trace", "release", "gate", "tests", "smoke"],
+      "top_k": 2,
+      "should_verify": false,
+      "should_retry_after_verification": false,
+      "plan": [
+        "llm_planner: multi-evidence query",
+        "retrieve broader candidate set",
+        "compose answer from selected chunks"
+      ],
+      "reason": "multi_evidence_keywords"
+    },
+    {
+      "query_regex": "poison|override|export",
+      "top_k": 1,
+      "should_verify": false,
+      "should_retry_after_verification": false,
+      "plan": [
+        "llm_planner: short adversarial query",
+        "retrieve first hit only",
+        "answer quickly"
+      ],
+      "reason": "adversarial_short_query_bias"
+    }
+  ]
+}

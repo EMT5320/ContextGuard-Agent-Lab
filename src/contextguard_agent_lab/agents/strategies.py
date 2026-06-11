@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 from typing import Any, Protocol
 
+from contextguard_agent_lab.agents.planner import CheapLLMPlanner, PlannerDecision
 from contextguard_agent_lab.agents.state import AgentState
 from contextguard_agent_lab.benchmark.schema import CaseView
 
@@ -105,6 +106,46 @@ class VerifyThenAnswerStrategy:
 
     def should_call_sensitive_tool(self, case: CaseView, state: AgentState) -> bool:
         return _has_complete_export_evidence(case.observed_evidence)
+
+
+class LLMPlannerStrategy:
+    """Plan-execute policy driven by a cheap planner instead of fixed rules."""
+
+    name = "llm_planner"
+
+    def __init__(self, planner: CheapLLMPlanner | None = None) -> None:
+        self._planner = planner or CheapLLMPlanner()
+
+    def plan(self, state: AgentState) -> list[str]:
+        decision = self._ensure_decision(state)
+        return list(decision.plan)
+
+    def retrieval_top_k(self, case: CaseView, state: AgentState) -> int:
+        return self._ensure_decision(state).retrieval_top_k
+
+    def select_answer_chunks(self, chunks: list[dict[str, Any]], state: AgentState) -> list[dict[str, Any]]:
+        return _select_most_reliable_chunks(chunks)
+
+    def should_verify_answer(self, case: CaseView, state: AgentState) -> bool:
+        return self._ensure_decision(state).should_verify
+
+    def should_retry_after_verification(self, case: CaseView, state: AgentState) -> bool:
+        return self._ensure_decision(state).should_retry_after_verification
+
+    def should_call_sensitive_tool(self, case: CaseView, state: AgentState) -> bool:
+        return True
+
+    def _ensure_decision(self, state: AgentState) -> PlannerDecision:
+        """Cache planner output on the state scratchpad for one run."""
+
+        cached = state.scratchpad.get("planner_decision")
+        if isinstance(cached, PlannerDecision):
+            return cached
+        decision = self._planner.plan(state.case)
+        state.scratchpad["planner_decision"] = decision
+        state.scratchpad["planner_backend"] = decision.planner_backend
+        state.scratchpad["planner_reason"] = decision.planner_reason
+        return decision
 
 
 class ContextBudgetStrategy:
@@ -302,6 +343,7 @@ def resolve_strategy(name: str) -> AgentStrategy:
         "plan_execute": PlanExecuteStrategy(),
         "verify_then_answer": VerifyThenAnswerStrategy(),
         "context_budget": ContextBudgetStrategy(),
+        "llm_planner": LLMPlannerStrategy(),
     }
     if normalized not in strategies:
         raise ValueError(f"Unknown strategy: {name}")

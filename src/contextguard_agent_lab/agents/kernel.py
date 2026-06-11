@@ -217,6 +217,10 @@ def _run_metrics(state: AgentState) -> dict:
     metrics = {"tool_call_count": len(state.tool_calls)}
     if "selection_reasons" in state.scratchpad:
         metrics["selection_reasons"] = state.scratchpad["selection_reasons"]
+    if "planner_backend" in state.scratchpad:
+        metrics["planner_backend"] = state.scratchpad["planner_backend"]
+    if "planner_reason" in state.scratchpad:
+        metrics["planner_reason"] = state.scratchpad["planner_reason"]
     return metrics
 
 

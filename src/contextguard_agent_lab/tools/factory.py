@@ -45,7 +45,7 @@ def build_default_tool_registry(repo_root: str | Path, policy_engine: EvidencePo
             risk_level="low",
             side_effect="none",
             cost_estimate=1.0,
-            mcp_exposure="manifest",
+            mcp_exposure="fastmcp",
         ),
     )
     registry.register(
@@ -75,7 +75,7 @@ def build_default_tool_registry(repo_root: str | Path, policy_engine: EvidencePo
             risk_level="low",
             side_effect="none",
             cost_estimate=1.5,
-            mcp_exposure="manifest",
+            mcp_exposure="fastmcp",
         ),
     )
     registry.register(

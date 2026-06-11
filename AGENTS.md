@@ -20,7 +20,7 @@ ContextGuard Agent Lab 是一个 MCP-compatible、strategy-evaluation-first 的 
 - 任何新增功能都应进入至少一个 report、trace、metric 或 case card。
 - 重 UI 暂不进入主线；README、reports index、CLI、JSONL trace、Markdown report 是必须维护的展示入口。
 - 后续多 agent 并行开发时，先对齐 `10_execution_alignment_plan.md` 的工作流分工；不要把阶段目标坍缩成互不关联的小 demo。
-- `toy_code_repair`、reflective repair、LLM planner、FastMCP adapter 都不是 MVP blocker；除非已有 trace / grader / report 证据，否则不要把它们写成已实现主张。
+- `toy_code_repair`、reflective repair 仍不是 MVP blocker；`llm_planner` 与 FastMCP（`search_docs` / `verify_citation`）仅在 `reports/planner_comparison.md` 与 `scripts/smoke_fastmcp.py` 等证据存在时可写入 README claim。
 
 ## Label Visibility Contract
 

@@ -39,7 +39,7 @@
     "risk_level": "low",
     "side_effect": "none",
     "cost_estimate": 1.0,
-    "mcp_exposure": "manifest"
+    "mcp_exposure": "fastmcp"
   },
   {
     "name": "verify_citation",
@@ -83,7 +83,7 @@
     "risk_level": "low",
     "side_effect": "none",
     "cost_estimate": 1.5,
-    "mcp_exposure": "manifest"
+    "mcp_exposure": "fastmcp"
   },
   {
     "name": "export_data",
