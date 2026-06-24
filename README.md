@@ -171,3 +171,7 @@ contextguard-agent-lab/
 | Coding repair | `cg_code_001` is a stub excluded from core aggregate metrics. |
 | Not claimed | Enterprise security, MCP-native for all tools, reflective repair, hosted frontier LLM planning, production observability. |
 | UI | Artifact-driven README / JSONL / Markdown only; no heavy UI in scope. |
+
+## License
+
+MIT. See [`LICENSE`](LICENSE).
