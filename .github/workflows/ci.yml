@@ -1,0 +1,36 @@
+name: ContextGuard CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  public-smoke:
+    name: Public smoke and report generation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install project with test extras
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev,mcp]"
+
+      # Keep this job aligned with the README 3-minute run and public release gate.
+      - name: Run public verification chain
+        run: |
+          python -m compileall -q src scripts tests
+          python -m unittest discover -s tests
+          mkdir -p .run/ci
+          python scripts/run_eval.py --case-limit 3 --out .run/ci/sample_run.jsonl
+          python scripts/generate_report.py --run .run/ci/sample_run.jsonl --out .run/ci/sample_report.md
+          python scripts/export_tool_manifest.py --out .run/ci/tool_manifest.json

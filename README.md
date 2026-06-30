@@ -1,5 +1,7 @@
 # ContextGuard Agent Lab
 
+[![ContextGuard CI](https://github.com/EMT5320/ContextGuard-Agent-Lab/actions/workflows/ci.yml/badge.svg)](https://github.com/EMT5320/ContextGuard-Agent-Lab/actions/workflows/ci.yml)
+
 > Run the same agent task across multiple control strategies, then compare tool traces, independent grading, and success-cost tradeoffs.
 
 ContextGuard is a small MCP-compatible agent strategy benchmark. It answers one practical question:

@@ -24,7 +24,7 @@ context_budget     False  abstained=True            浅检索只捞到毒文档 
 
 ## 二、本轮遗留/新发现的问题（都是 P2 级，无阻塞）
 
-1. **`verify_citation` 的 `trust_score` 用 `max()`**（<ref_snippet file="D:/workspace/ContextGuard-Agent-Lab/src/contextguard_agent_lab/tools/retrieval.py" lines="67-68" />）：若答案混合"官方+未验证"来源，max 会判 trusted。当前 `_select_most_reliable_chunks` 只选同档可靠性的 chunk 所以触发不了，但作为工具契约应该用 `min`（所有引用源都需可信）——等以后接入选择不受控的 LLM 策略时这就是漏洞。
+1. **`verify_citation` 的 `trust_score` 用 `max()`**（<ref_snippet file="src/contextguard_agent_lab/tools/retrieval.py" lines="67-68" />）：若答案混合"官方+未验证"来源，max 会判 trusted。当前 `_select_most_reliable_chunks` 只选同档可靠性的 chunk 所以触发不了，但作为工具契约应该用 `min`（所有引用源都需可信）——等以后接入选择不受控的 LLM 策略时这就是漏洞。
 2. **trust-aware selection 成了三策略共享行为**：`_select_most_reliable_chunks` 被 plan_execute / verify / context_budget 共用，"选源能力"不再是策略差异维度，adversarial split 实际又由 top_k 驱动。Phase 3 VoI 时应把 selection policy 本身变成策略差异；另外目前没有"trust 元数据缺失或标错"的 case，trusted-source selection 还没有失败面（上轮提过，建议进 Phase 2 case 设计）。
 3. **`unsupported_answer` 语义混杂**：missing_verification 也被算进 unsupported（`cg_verify_001` 里 plan_execute 答案来源完全正确却记 unsupported=True）。建议拆出独立的 `missing_verification` 指标，并在报告里说明 verification_needed 是"隐藏合规要求"设计（策略看不到 family，这是对的，但解释要跟上，避免被读成"验证提升了答案质量"）。
 4. **coding stub 拉高总指标**：`cg_code_001` 给每个策略贡献一行 unsupported=True（overall 25% 里有 11% 来自 stub）。策略间比较不受影响，但建议报告将 coding_fixture 从 aggregate 排除或单列。
