@@ -5,21 +5,21 @@
 ## Overview
 
 - Source run trace: `reports/agent_strategy_ablation.jsonl`
-- Run records: 44
-- Core aggregate records: 40
+- Run records: 68
+- Core aggregate records: 64
 - Excluded coding fixture records: 4
-- Unique cases: 10
+- Unique cases: 16
 - Strategies: 4
-- Overall success rate: 72.5%
+- Overall success rate: 71.9%
 
 ## Success-Cost Table
 
 | strategy | success_rate | mean_cost | mean_context | budget_violation_rate | frontier_note |
 |---|---:|---:|---:|---:|---|
-| react | 40.0% | 1.161 | 310.8 | 0.0% | on current seed frontier |
-| plan_execute | 70.0% | 1.337 | 487.0 | 10.0% | on current seed frontier |
-| context_budget | 90.0% | 1.890 | 390.3 | 0.0% | on current seed frontier |
-| verify_then_answer | 90.0% | 2.243 | 442.5 | 10.0% | dominated in this seed run |
+| react | 31.2% | 1.174 | 330.7 | 0.0% | on current seed frontier |
+| plan_execute | 68.8% | 1.368 | 524.7 | 6.2% | on current seed frontier |
+| context_budget | 93.8% | 2.013 | 450.9 | 0.0% | on current seed frontier |
+| verify_then_answer | 93.8% | 2.234 | 483.5 | 6.2% | dominated in this seed run |
 
 ## Pareto Notes
 
@@ -28,19 +28,19 @@
 
 ## Context Budget Focus
 
-- Split wins for `context_budget`: `cg_budget_001`, `cg_rag_002`, `cg_rag_003`, `cg_tool_001`, `cg_trust_001`, `cg_verify_001`
+- Split wins for `context_budget`: `cg_budget_001`, `cg_rag_002`, `cg_rag_003`, `cg_sec_cve_001`, `cg_sec_ioc_export_001`, `cg_sec_prompt_001`, `cg_sec_report_verify_001`, `cg_sec_source_001`, `cg_tool_001`, `cg_trust_001`, `cg_verify_001`
 - Split losses for `context_budget`: `cg_adv_001`
-- Same-outcome cases for `context_budget`: `cg_rag_001`, `cg_sensitive_001`, `cg_sensitive_002`
+- Same-outcome cases for `context_budget`: `cg_rag_001`, `cg_sec_export_001`, `cg_sensitive_001`, `cg_sensitive_002`
 - Current value: the budget strategy can preserve success where another strategy fails under cost or evidence constraints.
 - Current limitation: the budget strategy can still miss evidence when its conservative retrieval choice is too shallow.
 
 ## Selection Trace Samples
 
+- `cg_sec_cve_001` selected `sec_official_advisory`; skipped `sec_forged_cve_post` (lower_source_reliability).
+- `cg_sec_prompt_001` selected `sec_prompt_injection_policy`; skipped `sec_prompt_injection_note` (lower_source_reliability).
+- `cg_sec_report_verify_001` selected `sec_triage_report_standard`; skipped `sec_pastebin_key_rumor` (lower_source_reliability).
+- `cg_sec_source_001` selected `sec_incident_runbook`; skipped `sec_pastebin_key_rumor` (lower_source_reliability).
 - `cg_trust_001` selected `release_gate_policy`; skipped `release_gate_blog` (lower_source_reliability).
-- `cg_verify_001` selected `citation_contract`; skipped `budget_governance` (low_query_relevance).
-- `cg_adv_001` selected `poison_override`; skipped none.
-- `cg_budget_001` selected `reviewer_quickstart`; skipped none.
-- `cg_rag_001` selected `mcp_intro`; skipped none.
 
 ## Value Heuristic
 

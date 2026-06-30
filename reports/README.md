@@ -2,6 +2,8 @@
 
 This directory is the lightweight showcase entry for generated artifacts.
 
+The `cg_sec_*` rows are bounded security-oriented eval cases only; they are not enterprise security, Security Copilot, or full MCP-native security claims.
+
 | Artifact | Purpose | Status |
 |---|---|---|
 | `sample_report.md` | Starter smoke report across MVP strategies. | Generated. |
@@ -33,7 +35,7 @@ python scripts/generate_report.py --run reports/agent_strategy_ablation.jsonl --
 Generate showcase artifacts from the seed-suite ablation:
 
 ```powershell
-python scripts/generate_case_cards.py --run reports/agent_strategy_ablation.jsonl --cases data/benchmark/cases.sample.jsonl --out reports/case_cards.md
+python scripts/generate_case_cards.py --run reports/agent_strategy_ablation.jsonl --cases data/benchmark/cases.sample.jsonl --out reports/case_cards.md --max-cards 6
 python scripts/generate_frontier_report.py --run reports/agent_strategy_ablation.jsonl --out reports/context_budget_frontier.md
 ```
 

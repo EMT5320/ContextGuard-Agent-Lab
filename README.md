@@ -10,6 +10,8 @@ When the task, tools, and budget stay fixed, how do different agent strategies b
 
 The current MVP strategies are `react`, `plan_execute`, `verify_then_answer`, and `context_budget`. An optional `llm_planner` strategy compares cheap planner output against deterministic planning.
 
+The seed suite includes a small ContextGuard Security Pack: bounded security-oriented eval cases for prompt injection handling, forged CVE references, source reliability, export gating, and verification-required security reports. It is not an enterprise security product, Security Copilot, or a full MCP-native security stack.
+
 ## What It Shows
 
 | Capability | Current Artifact |
@@ -21,6 +23,7 @@ The current MVP strategies are `react`, `plan_execute`, `verify_then_answer`, an
 | Cost and context accounting | `cost_proxy`, `context_chars_used`, per-call trace fields |
 | Deterministic vs cheap-planner comparison | `reports/planner_comparison.md`, `reports/planner_comparison.jsonl` |
 | Seed strategy comparison | `reports/sample_report.md`, `reports/agent_strategy_ablation.md` |
+| Bounded security-oriented eval cases | `cg_sec_*` rows in `data/benchmark/cases.sample.jsonl`, `reports/agent_strategy_ablation.md`, `reports/case_cards.md` |
 
 ## Claim-Evidence Map
 
@@ -34,6 +37,7 @@ The current MVP strategies are `react`, `plan_execute`, `verify_then_answer`, an
 | Context and budget tradeoffs are measurable. | `reports/context_budget_frontier.md`, `reports/agent_strategy_ablation.md` |
 | Representative strategy splits are inspectable. | `reports/case_cards.md` |
 | Cheap planner behavior is compared against deterministic planning. | `reports/planner_comparison.md` |
+| The security pack is limited to bounded security-oriented eval cases. | `cg_sec_*` cases in `data/benchmark/cases.sample.jsonl`, public toy docs in `data/corpus/docs.sample.jsonl`, generated report rows in `reports/agent_strategy_ablation.md` |
 
 ## 3-Minute Run
 
@@ -79,14 +83,14 @@ Compare deterministic `plan_execute` against offline cheap keyword planner `llm_
 python scripts/run_planner_comparison.py
 ```
 
-Current seed-suite headline (`reports/planner_comparison.md`, 7 rag cases):
+Current seed-suite headline (`reports/planner_comparison.md`, 11 rag cases):
 
 | Strategy | Success | Missing verification | Mean cost |
 |---|---:|---:|---:|
-| `plan_execute` | 71.4% | 14.3% | 1.622 |
-| `llm_planner` | 71.4% | 0.0% | 1.776 |
+| `plan_execute` | 72.7% | 18.2% | 1.680 |
+| `llm_planner` | 63.6% | 0.0% | 1.853 |
 
-Interpretation: the cheap planner trades higher cost (+0.155 mean cost proxy) for fixing the verification-needed failure mode, but still misses the adversarial shallow-retrieval split that deterministic `plan_execute` passes. Default backend is offline keyword policy (`data/planner/cheap_planner_policy.json`); hosted OpenAI-compatible planning is optional via `CONTEXTGUARD_PLANNER_BACKEND=http`.
+Interpretation: the cheap planner removes missing-verification failures in this seed-suite slice, but costs more (+0.173 mean cost proxy) and loses 9.1 pp success because the offline keyword policy is brittle on some adversarial/source-reliability cases. Default backend is offline keyword policy (`data/planner/cheap_planner_policy.json`); hosted OpenAI-compatible planning is optional via `CONTEXTGUARD_PLANNER_BACKEND=http`.
 
 ## Inspect The Results
 
@@ -134,10 +138,10 @@ Phase 1 freeze snapshot (2026-06-11):
 - Answer-source tracing, abstention tracing, and gold-free verification over retrieved chunks and runtime provenance.
 - Per-case retrieval doc pools for stable seed-case retrieval as the toy corpus grows.
 - Context-budget selection reasons using query relevance, source reliability, novelty, and estimated context cost.
-- 11 public starter cases covering retrieval depth, verification timing, budget pressure, adversarial context, source reliability, simulated `export_data` tool-boundary paths, and a clearly marked coding stub.
+- 17 public starter cases covering retrieval depth, verification timing, budget pressure, adversarial context, source reliability, simulated `export_data` tool-boundary paths, 6 bounded security-oriented eval cases, and a clearly marked coding stub.
 - Multi-strategy CLI smoke and seed-suite report workflow with coding fixtures excluded from core aggregates.
 
-The project is a bounded benchmark, not a production agent platform. The ablation report is seed-suite evidence for strategy comparison and eval-validity discipline.
+The project is a bounded benchmark, not a production agent platform or security copilot. The ablation report is seed-suite evidence for strategy comparison and eval-validity discipline.
 
 ## Project Map
 
@@ -169,7 +173,7 @@ contextguard-agent-lab/
 | Strategies | MVP = four deterministic strategies. `llm_planner` is an optional comparison strategy with offline keyword backend by default, not a frontier-model claim. |
 | Grading | Graders read gold labels; strategies and tools do not. |
 | Coding repair | `cg_code_001` is a stub excluded from core aggregate metrics. |
-| Not claimed | Enterprise security, MCP-native for all tools, reflective repair, hosted frontier LLM planning, production observability. |
+| Not claimed | Enterprise security, Security Copilot, full MCP-native security coverage, MCP-native for all tools, reflective repair, hosted frontier LLM planning, production observability. |
 | UI | Artifact-driven README / JSONL / Markdown only; no heavy UI in scope. |
 
 ## License
