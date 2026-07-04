@@ -45,6 +45,7 @@ The seed suite includes a small ContextGuard Security Pack: bounded security-ori
 
 ```powershell
 python -m compileall -q src scripts tests
+pip install -e ".[dev]"
 python -m unittest discover -s tests
 python scripts/run_eval.py --case-limit 3 --out reports/sample_run.jsonl
 python scripts/generate_report.py --run reports/sample_run.jsonl --out reports/sample_report.md
