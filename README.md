@@ -4,15 +4,32 @@
 
 > Run the same agent task across multiple control strategies, then compare tool traces, independent grading, and success-cost tradeoffs.
 
-ContextGuard is a small MCP-compatible agent strategy benchmark. It answers one practical question:
+ContextGuard is an MCP-compatible agent strategy benchmark. It answers one practical question:
 
 ```text
 When the task, tools, and budget stay fixed, how do different agent strategies behave?
 ```
 
-The current MVP strategies are `react`, `plan_execute`, `verify_then_answer`, and `context_budget`. An optional `llm_planner` strategy compares cheap planner output against deterministic planning.
+The MVP strategies are `react`, `plan_execute`, `verify_then_answer`, and `context_budget`. An optional `llm_planner` strategy compares cheap planner output against deterministic planning. The seed suite also includes a ContextGuard Security Pack with security-oriented eval cases for prompt injection handling, forged CVE references, source reliability, export gating, and verification-required security reports.
 
-The seed suite includes a small ContextGuard Security Pack: bounded security-oriented eval cases for prompt injection handling, forged CVE references, source reliability, export gating, and verification-required security reports. It is not an enterprise security product, Security Copilot, or a full MCP-native security stack.
+## Key Metrics
+
+| Metric | Value |
+|---|---|
+| Public starter cases | 17 |
+| Toy documents | 20 |
+| Strategy ablation runs | 68 (4 strategies × 17 cases) |
+| Core aggregate rows | 64 (coding fixture excluded) |
+| Core success rate | 71.9% (46/64) |
+| `context_budget` success | 93.8% |
+| `verify_then_answer` success | 93.8% |
+| `plan_execute` success | 68.8% |
+| `react` success | 31.2% |
+| Planner comparison | `plan_execute` 72.7% vs `llm_planner` 63.6% |
+| Missing-verification fix | 18.2% → 0.0% |
+| Unit tests | 32 passed |
+
+Full numbers live in [`reports/agent_strategy_ablation.md`](reports/agent_strategy_ablation.md), [`reports/context_budget_frontier.md`](reports/context_budget_frontier.md), and [`reports/planner_comparison.md`](reports/planner_comparison.md).
 
 ## What It Shows
 
@@ -21,7 +38,7 @@ The seed suite includes a small ContextGuard Security Pack: bounded security-ori
 | Same cases across multiple strategies | `scripts/run_eval.py --strategies ...` |
 | Structured tool boundary | `ToolSpec`, `ToolExecutor`, `reports/tool_manifest.json` |
 | FastMCP-demonstrated retrieval tools | `src/contextguard_agent_lab/mcp_server/server.py`, `scripts/smoke_fastmcp.py` |
-| Independent grading | `eval/graders.py`, `answer_source_doc_ids`, `grader_result` in JSONL runs |
+| Independent grading | `src/contextguard_agent_lab/eval/graders.py`, `answer_source_doc_ids`, `grader_result` in JSONL runs |
 | Cost and context accounting | `cost_proxy`, `context_chars_used`, per-call trace fields |
 | Deterministic vs cheap-planner comparison | `reports/planner_comparison.md`, `reports/planner_comparison.jsonl` |
 | Seed strategy comparison | `reports/sample_report.md`, `reports/agent_strategy_ablation.md` |
@@ -33,7 +50,7 @@ The seed suite includes a small ContextGuard Security Pack: bounded security-ori
 |---|---|
 | Same cases compare multiple deterministic agent strategies. | `reports/agent_strategy_ablation.md`, `reports/agent_strategy_ablation.jsonl` |
 | Tool use is exposed through an MCP-compatible in-process boundary. | `reports/tool_manifest.json`, `src/contextguard_agent_lab/tools/registry.py` |
-| Two core tools are demonstrated through FastMCP. | `scripts/smoke_fastmcp.py`, `mcp_server/server.py`, `mcp_exposure=fastmcp` rows in `reports/tool_manifest.json` |
+| Two core tools are demonstrated through FastMCP. | `scripts/smoke_fastmcp.py`, `src/contextguard_agent_lab/mcp_server/server.py`, `mcp_exposure=fastmcp` rows in `reports/tool_manifest.json` |
 | Independent grading is stored separately from agent answers. | `grader_result` fields in `reports/agent_strategy_ablation.jsonl` |
 | Strategies and tools do not receive gold labels. | `CaseView`, gold-free `verify_citation` traces, `docs/design/05_claim_and_eval_contract.md` |
 | Context and budget tradeoffs are measurable. | `reports/context_budget_frontier.md`, `reports/agent_strategy_ablation.md` |
@@ -118,7 +135,7 @@ CaseSpec
   -> Markdown report
 ```
 
-Current strategy differences are intentionally small and deterministic:
+Current strategy differences are deterministic and fully reproducible:
 
 | Strategy | Behavior |
 |---|---|
@@ -139,12 +156,12 @@ Phase 1 freeze snapshot (2026-06-11):
 - Cheap offline planner comparison against `plan_execute`.
 - Independent starter graders for retrieval QA, sensitive-action smoke cases, and unimplemented coding fixtures.
 - Answer-source tracing, abstention tracing, and gold-free verification over retrieved chunks and runtime provenance.
-- Per-case retrieval doc pools for stable seed-case retrieval as the toy corpus grows.
+- Per-case retrieval doc pools for stable seed-case retrieval as the corpus grows.
 - Context-budget selection reasons using query relevance, source reliability, novelty, and estimated context cost.
 - 17 public starter cases covering retrieval depth, verification timing, budget pressure, adversarial context, source reliability, simulated `export_data` tool-boundary paths, 6 bounded security-oriented eval cases, and a clearly marked coding stub.
 - Multi-strategy CLI smoke and seed-suite report workflow with coding fixtures excluded from core aggregates.
 
-The project is a bounded benchmark, not a production agent platform or security copilot. The ablation report is seed-suite evidence for strategy comparison and eval-validity discipline.
+The ablation report is seed-suite evidence for strategy comparison and eval-validity discipline. See the [Boundaries](#boundaries-frozen) section for what is and is not claimed.
 
 ## Project Map
 
