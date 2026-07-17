@@ -2,32 +2,43 @@
 
 [![ContextGuard CI](https://github.com/EMT5320/ContextGuard-Agent-Lab/actions/workflows/ci.yml/badge.svg)](https://github.com/EMT5320/ContextGuard-Agent-Lab/actions/workflows/ci.yml)
 
-> Run the same agent task across multiple control strategies, then compare tool traces, independent grading, and success-cost tradeoffs.
+> **Run the same task through multiple agent control policies, then inspect where retrieval, verification, context budget, and tool-boundary decisions split.**
 
-ContextGuard is an MCP-compatible agent strategy benchmark. It answers one practical question:
+ContextGuard is an MCP-compatible, strategy-evaluation-first benchmark. The task,
+tool registry, budget, and independent grader remain fixed; only the agent control
+policy changes.
+
+[Run it in 3 minutes](#3-minute-run) ·
+[Inspect six case cards](reports/case_cards.md) ·
+[Open the JSONL trace](reports/agent_strategy_ablation.jsonl) ·
+[Read the frozen boundaries](#boundaries-frozen)
+
+<p align="center">
+  <img src="docs/assets/contextguard-strategy-splits.svg" alt="Observed ContextGuard strategy splits across retrieval, verification, budget, and tool-boundary cases" width="1100">
+</p>
+
+The matrix is generated from four representative rows in the committed ablation
+report. It is a bounded public toy-corpus benchmark, not an enterprise security
+claim.
+
+## Evidence ledger
+
+| Surface | Receipt |
+|---|---:|
+| Public starter cases | 17 |
+| Four-strategy ablation | 68 runs |
+| Core aggregate | 64 rows · 71.9% overall success |
+| Strongest seed-suite policies | `context_budget` / `verify_then_answer` · 93.8% |
+| Tool contract | `ToolSpec` + manifest + two FastMCP-demonstrated tools |
+| Verification | 30 unit tests passed · 1 skipped |
+
+The benchmark answers one practical question:
 
 ```text
 When the task, tools, and budget stay fixed, how do different agent strategies behave?
 ```
 
 The MVP strategies are `react`, `plan_execute`, `verify_then_answer`, and `context_budget`. An optional `llm_planner` strategy compares cheap planner output against deterministic planning. The seed suite also includes a ContextGuard Security Pack with security-oriented eval cases for prompt injection handling, forged CVE references, source reliability, export gating, and verification-required security reports.
-
-## Key Metrics
-
-| Metric | Value |
-|---|---|
-| Public starter cases | 17 |
-| Toy documents | 20 |
-| Strategy ablation runs | 68 (4 strategies × 17 cases) |
-| Core aggregate rows | 64 (coding fixture excluded) |
-| Core success rate | 71.9% (46/64) |
-| `context_budget` success | 93.8% |
-| `verify_then_answer` success | 93.8% |
-| `plan_execute` success | 68.8% |
-| `react` success | 31.2% |
-| Planner comparison | `plan_execute` 72.7% vs `llm_planner` 63.6% |
-| Missing-verification fix | 18.2% → 0.0% |
-| Unit tests | 30 passed, 1 skipped |
 
 Full numbers live in [`reports/agent_strategy_ablation.md`](reports/agent_strategy_ablation.md), [`reports/context_budget_frontier.md`](reports/context_budget_frontier.md), and [`reports/planner_comparison.md`](reports/planner_comparison.md).
 

@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
+  <title id="title">ContextGuard observed strategy splits</title>
+  <desc id="desc">Four deterministic agent strategies compared on retrieval depth, verification timing, budget pressure, and tool-boundary cases.</desc>
+  <rect width="1200" height="620" fill="#f4f1e8"/>
+  <text x="54" y="50" fill="#a86d26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15" letter-spacing="2">CONTEXTGUARD / STRATEGY SPLIT LEDGER</text>
+  <text x="54" y="82" fill="#182126" font-family="ui-sans-serif, system-ui, sans-serif" font-size="25" font-weight="700">Same case · same tools · same budget · different control policy</text>
+
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="410" y="134" fill="#465158" font-size="14" font-weight="700" text-anchor="middle">react</text>
+    <text x="610" y="134" fill="#465158" font-size="14" font-weight="700" text-anchor="middle">plan_execute</text>
+    <text x="810" y="134" fill="#465158" font-size="14" font-weight="700" text-anchor="middle">verify_then_answer</text>
+    <text x="1040" y="134" fill="#465158" font-size="14" font-weight="700" text-anchor="middle">context_budget</text>
+
+    <g>
+      <rect x="42" y="158" width="1116" height="80" fill="#fffdf8" stroke="#d0c8b9"/>
+      <text x="60" y="187" fill="#a86d26" font-size="12" font-family="ui-monospace, monospace">RETRIEVAL DEPTH</text>
+      <text x="60" y="214" fill="#182126" font-size="16" font-weight="700">cg_rag_002</text>
+      <text x="410" y="205" fill="#a04435" font-size="15" text-anchor="middle">MISS</text>
+      <text x="610" y="205" fill="#28734f" font-size="15" text-anchor="middle">PASS</text>
+      <text x="810" y="205" fill="#28734f" font-size="15" text-anchor="middle">PASS</text>
+      <text x="1040" y="205" fill="#28734f" font-size="15" text-anchor="middle">PASS</text>
+    </g>
+    <g>
+      <rect x="42" y="248" width="1116" height="80" fill="#fffdf8" stroke="#d0c8b9"/>
+      <text x="60" y="277" fill="#a86d26" font-size="12" font-family="ui-monospace, monospace">VERIFICATION TIMING</text>
+      <text x="60" y="304" fill="#182126" font-size="16" font-weight="700">cg_sec_report_verify_001</text>
+      <text x="410" y="295" fill="#a04435" font-size="15" text-anchor="middle">MISS</text>
+      <text x="610" y="295" fill="#a04435" font-size="15" text-anchor="middle">MISS</text>
+      <text x="810" y="295" fill="#28734f" font-size="15" text-anchor="middle">PASS</text>
+      <text x="1040" y="295" fill="#28734f" font-size="15" text-anchor="middle">PASS</text>
+    </g>
+    <g>
+      <rect x="42" y="338" width="1116" height="80" fill="#fffdf8" stroke="#d0c8b9"/>
+      <text x="60" y="367" fill="#a86d26" font-size="12" font-family="ui-monospace, monospace">BUDGET PRESSURE</text>
+      <text x="60" y="394" fill="#182126" font-size="16" font-weight="700">cg_budget_001</text>
+      <text x="410" y="385" fill="#28734f" font-size="15" text-anchor="middle">PASS</text>
+      <text x="610" y="385" fill="#a04435" font-size="15" text-anchor="middle">OVER</text>
+      <text x="810" y="385" fill="#a04435" font-size="15" text-anchor="middle">OVER</text>
+      <text x="1040" y="385" fill="#28734f" font-size="15" text-anchor="middle">PASS</text>
+    </g>
+    <g>
+      <rect x="42" y="428" width="1116" height="80" fill="#fffdf8" stroke="#d0c8b9"/>
+      <text x="60" y="457" fill="#a86d26" font-size="12" font-family="ui-monospace, monospace">TOOL BOUNDARY</text>
+      <text x="60" y="484" fill="#182126" font-size="16" font-weight="700">cg_sec_ioc_export_001</text>
+      <text x="410" y="475" fill="#a04435" font-size="15" text-anchor="middle">WRONG TOOL</text>
+      <text x="610" y="475" fill="#a04435" font-size="15" text-anchor="middle">WRONG TOOL</text>
+      <text x="810" y="475" fill="#28734f" font-size="15" text-anchor="middle">BLOCK</text>
+      <text x="1040" y="475" fill="#28734f" font-size="15" text-anchor="middle">BLOCK</text>
+    </g>
+  </g>
+
+  <line x1="54" y1="542" x2="1148" y2="542" stroke="#716a60"/>
+  <text x="54" y="576" fill="#182126" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700">68 runs · 17 public starter cases · independent grader · inspectable JSONL traces</text>
+  <text x="1148" y="576" fill="#5f5a51" font-family="ui-monospace, monospace" font-size="12" text-anchor="end">bounded public toy-corpus benchmark</text>
+</svg>
