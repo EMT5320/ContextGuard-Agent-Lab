@@ -16,7 +16,7 @@ policy changes.*
 [3 分钟跑通](#3-minute-run) ·
 [查看六个案例卡](reports/case_cards.md) ·
 [打开 JSONL 轨迹](reports/agent_strategy_ablation.jsonl) ·
-[阅读冻结边界](#boundaries-frozen)
+[查看 Claim-Evidence Map](#claim-evidence-map)
 
 <p align="center">
   <img src="docs/assets/contextguard-strategy-splits.svg" alt="Observed ContextGuard strategy splits across retrieval, verification, budget, and tool-boundary cases" width="1100">
@@ -29,12 +29,11 @@ policy changes.*
 
 | Surface | Receipt |
 |---|---:|
-| Public starter cases | 17 |
-| Four-strategy ablation | 68 runs |
-| Core aggregate | 64 rows · 71.9% overall success |
+| Public benchmark fixtures | 17 total · 16 scored |
+| Four-strategy ablation | 64 scored runs · 71.9% overall success |
 | Strongest seed-suite policies | `context_budget` / `verify_then_answer` · 93.8% |
 | Tool contract | `ToolSpec` + manifest + two FastMCP-demonstrated tools |
-| Verification | 30 unit tests passed · 1 skipped |
+| Verification | 32 tests passed · FastMCP integration included |
 
 The benchmark answers one practical question:
 
@@ -42,7 +41,7 @@ The benchmark answers one practical question:
 When the task, tools, and budget stay fixed, how do different agent strategies behave?
 ```
 
-The MVP strategies are `react`, `plan_execute`, `verify_then_answer`, and `context_budget`. An optional `llm_planner` strategy compares cheap planner output against deterministic planning. The seed suite also includes a ContextGuard Security Pack with security-oriented eval cases for prompt injection handling, forged CVE references, source reliability, export gating, and verification-required security reports.
+The MVP strategies are `react`, `plan_execute`, `verify_then_answer`, and `context_budget`. An optional `llm_planner` strategy uses an offline keyword-policy stand-in by default and can call an OpenAI-compatible planner backend for controlled comparisons. The seed suite also includes a ContextGuard Security Pack with security-oriented eval cases for prompt injection handling, forged CVE references, source reliability, export gating, and verification-required security reports.
 
 Full numbers live in [`reports/agent_strategy_ablation.md`](reports/agent_strategy_ablation.md), [`reports/context_budget_frontier.md`](reports/context_budget_frontier.md), and [`reports/planner_comparison.md`](reports/planner_comparison.md).
 

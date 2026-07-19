@@ -33,4 +33,8 @@ jobs:
           mkdir -p .run/ci
           python scripts/run_eval.py --case-limit 3 --out .run/ci/sample_run.jsonl
           python scripts/generate_report.py --run .run/ci/sample_run.jsonl --out .run/ci/sample_report.md
+          python scripts/run_eval.py --strategies react,plan_execute,verify_then_answer,context_budget --out .run/ci/agent_strategy_ablation.jsonl
+          cmp .run/ci/agent_strategy_ablation.jsonl reports/agent_strategy_ablation.jsonl
+          python scripts/generate_report.py --run reports/agent_strategy_ablation.jsonl --out .run/ci/agent_strategy_ablation.md
+          cmp .run/ci/agent_strategy_ablation.md reports/agent_strategy_ablation.md
           python scripts/export_tool_manifest.py --out .run/ci/tool_manifest.json
