@@ -35,8 +35,6 @@ policy changes.*
 | Tool contract | `ToolSpec` + manifest + two FastMCP-demonstrated tools |
 | Verification | 32 tests passed · FastMCP integration included |
 
-The MVP strategies are `react`, `plan_execute`, `verify_then_answer`, and `context_budget`. An optional `llm_planner` strategy uses an offline keyword-policy stand-in by default and can call an OpenAI-compatible planner backend for controlled comparisons. The seed suite also includes a ContextGuard Security Pack with security-oriented eval cases for prompt injection handling, forged CVE references, source reliability, export gating, and verification-required security reports.
-
 Full numbers live in [`reports/agent_strategy_ablation.md`](reports/agent_strategy_ablation.md), [`reports/context_budget_frontier.md`](reports/context_budget_frontier.md), and [`reports/planner_comparison.md`](reports/planner_comparison.md).
 
 ## What It Shows
@@ -55,6 +53,8 @@ Full numbers live in [`reports/agent_strategy_ablation.md`](reports/agent_strate
 ## Result Case Cards
 
 The headline metrics above are backed by inspectable case cards rather than a single aggregate score. Six representative cards in [`reports/case_cards.md`](reports/case_cards.md) show where strategies split under the same task, tools, and grader:
+
+The Security Pack covers prompt-injection handling, forged CVE references, source reliability, export gating, and verification-required reports. These cases remain bounded benchmark fixtures.
 
 | Case | What to inspect | Observed split |
 |---|---|---|
@@ -168,7 +168,7 @@ Current strategy differences are deterministic and fully reproducible:
 
 ## Current Status
 
-Phase 1 freeze snapshot (2026-06-11):
+Current public scope:
 
 - `BudgetSpec`, `ExpectedOutcome`, `GraderSpec`, and `GraderResult`.
 - `ToolSpec`, `ToolRegistry`, `ToolExecutor`, and manifest export.
